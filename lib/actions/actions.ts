@@ -1,0 +1,75 @@
+"use server";
+
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { PDFParse } from "pdf-parse";
+import { getVectorStore, embeddings } from "../vector-store";
+import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "../prisma";
+import { put } from "@vercel/blob";
+import { blob } from "stream/consumers";
+
+export async function uploadDocument(formData: FormData) {
+	try {
+		const { userId } = await auth();
+
+		if (!userId) return { success: false, message: "Unauthorized" };
+
+		const file = formData.get("file") as File;
+		if (!file) throw new Error("No file uploaded");
+
+		const blob = await put(file.name, file, {
+			access: "public",
+		});
+
+		const arrayBuffer = await file.arrayBuffer();
+		const buffer = Buffer.from(arrayBuffer);
+		const parser = new PDFParse({ data: buffer });
+		const text = await parser.getText();
+
+		const splitter = new RecursiveCharacterTextSplitter({
+			chunkSize: 1000,
+			chunkOverlap: 200,
+		});
+
+		const docs = await splitter.createDocuments([text.text]);
+
+		const vectorStore = await getVectorStore();
+
+		const vectors = await Promise.all(
+			docs.map(async (doc, i) => {
+				const embedding = await embeddings.embedQuery(doc.pageContent);
+				return {
+					id: `${file.name}-${i}`,
+					values: embedding,
+					metadata: {
+						text: doc.pageContent,
+						source: file.name,
+						userId,
+						url: blob.url,
+					},
+				};
+			})
+		);
+
+		const batchSize = 50;
+		for (let i = 0; i < vectors.length; i += batchSize) {
+			const batch = vectors.slice(i, i + batchSize);
+			await vectorStore.upsert(batch);
+		}
+
+		await prisma.document.create({
+			data: {
+				name: file.name,
+				url: blob.url,
+				userId: userId,
+			},
+		});
+
+		revalidatePath("/dashboard");
+		return { success: true, message: "Uploaded & Linked to User" };
+	} catch (error) {
+		console.error(error);
+		return { success: false, message: "Failed to process document." };
+	}
+}
