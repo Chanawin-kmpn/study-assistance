@@ -1,24 +1,37 @@
-import Image from "next/image";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function Home() {
 	return (
-		<div className="space-y-4">
-			{/* Header: ใช้ Prompt (ดู Modern) */}
-			<h1 className="text-3xl font-bold text-primary">
-				บทที่ 1: Introduction to React
+		<div className="flex flex-col items-center justify-center h-screen space-y-6">
+			<h1 className="text-5xl font-bold text-primary font-heading">
+				SkoolMate
 			</h1>
-
-			{/* Body: Eng ใช้ Inter, Thai ใช้ Sarabun (อ่านลื่นไหล) */}
-			<p className="text-slate-700 leading-relaxed">
-				React is a JavaScript library for building user interfaces. (รีแอค คือ
-				ไลบรารีจาวาสคริปต์สำหรับสร้างส่วนต่อประสานผู้ใช้) ช่วยให้เราสร้างเว็บแบบ
-				SPA ได้ง่ายขึ้น
+			<p className="text-xl text-slate-600 font-body">
+				AI Assistant for Skooldio Students
 			</p>
 
-			{/* Code: ใช้ JetBrains Mono (ดู Pro) */}
-			<pre className="bg-slate-900 text-green-400 p-4 rounded-lg font-mono text-sm">
-				const [count, setCount] = useState(0);
-			</pre>
+			<SignedOut>
+				{/* ปุ่ม Login ของ Clerk สวยและใช้ง่าย */}
+				<SignInButton mode="modal">
+					<button className="px-6 py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 font-bold shadow-lg transition-all">
+						Get Started with AI
+					</button>
+				</SignInButton>
+			</SignedOut>
+
+			<SignedIn>
+				<div className="flex flex-col items-center gap-4">
+					<div className="p-2 border rounded-full">
+						<UserButton afterSignOutUrl="/" />
+					</div>
+					<Link href="/dashboard">
+						<button className="px-6 py-3 bg-primary text-white rounded-lg">
+							Go to Dashboard
+						</button>
+					</Link>
+				</div>
+			</SignedIn>
 		</div>
 	);
 }

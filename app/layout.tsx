@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Prompt, Sarabun } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const prompt = Prompt({
 	weight: ["400", "500", "600", "700"],
@@ -40,19 +41,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`
-        ${prompt.variable} 
-        ${inter.variable} 
-        ${sarabun.variable} 
-        ${jetbrains.variable} 
-        font-body  
-        antialiased
-      `}
-			>
-				{children}
-			</body>
-		</html>
+		<ClerkProvider>
+			<html lang="en">
+				<body
+					className={`
+					${prompt.variable} 
+					${inter.variable} 
+					${sarabun.variable} 
+					${jetbrains.variable} 
+					font-body  
+					antialiased
+					`}
+				>
+					{children}
+				</body>
+			</html>
+		</ClerkProvider>
 	);
 }
