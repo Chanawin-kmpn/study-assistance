@@ -7,7 +7,6 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
-import { text } from "stream/consumers";
 
 export async function uploadDocument(formData: FormData) {
 	try {
