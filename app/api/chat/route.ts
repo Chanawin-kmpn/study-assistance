@@ -1,10 +1,6 @@
 import { embeddings, getVectorStore } from "@/lib/vector-store";
 import { google } from "@ai-sdk/google";
 import { streamText, type UIMessage, convertToModelMessages } from "ai";
-console.log(
-	"GOOGLE_GENERATIVE_AI_API_KEY:",
-	process.env.GOOGLE_GENERATIVE_AI_API_KEY
-);
 
 export const maxDuration = 30;
 
