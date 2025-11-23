@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
+import { text } from "stream/consumers";
 
 export async function uploadDocument(formData: FormData) {
 	try {
@@ -15,6 +16,7 @@ export async function uploadDocument(formData: FormData) {
 		if (!userId) return { success: false, message: "Unauthorized" };
 
 		const file = formData.get("file") as File;
+
 		if (!file) throw new Error("No file uploaded");
 
 		const blob = await put(file.name, file, {
@@ -24,14 +26,17 @@ export async function uploadDocument(formData: FormData) {
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
 		const parser = new PDFParse({ data: buffer });
-		const text = await parser.getText();
+		const result = await parser.getText();
+		await parser.destroy();
+
+		const text = result.text;
 
 		const splitter = new RecursiveCharacterTextSplitter({
 			chunkSize: 1000,
 			chunkOverlap: 200,
 		});
 
-		const docs = await splitter.createDocuments([text.text]);
+		const docs = await splitter.createDocuments([text]);
 
 		const vectorStore = await getVectorStore();
 
