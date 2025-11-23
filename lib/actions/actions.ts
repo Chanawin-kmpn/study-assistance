@@ -4,15 +4,34 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { PDFParse } from "pdf-parse";
 import { getVectorStore, embeddings } from "../vector-store";
 import { revalidatePath } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
 
 export async function uploadDocument(formData: FormData) {
 	try {
 		const { userId } = await auth();
+		const clerk = await clerkClient();
 
 		if (!userId) return { success: false, message: "Unauthorized" };
+
+		let dbUser = await prisma.user.findUnique({
+			where: { id: userId },
+		});
+
+		if (!dbUser) {
+			const user = await clerk.users.getUser(userId);
+			const email =
+				user.primaryEmailAddress?.emailAddress ??
+				`no-email-${userId}@example.com`;
+
+			dbUser = await prisma.user.create({
+				data: {
+					id: userId,
+					email,
+				},
+			});
+		}
 
 		const file = formData.get("file") as File;
 
@@ -20,6 +39,7 @@ export async function uploadDocument(formData: FormData) {
 
 		const blob = await put(file.name, file, {
 			access: "public",
+			token: process.env.BLOB_READ_WRITE_TOKEN,
 		});
 
 		const arrayBuffer = await file.arrayBuffer();
@@ -48,7 +68,7 @@ export async function uploadDocument(formData: FormData) {
 					metadata: {
 						text: doc.pageContent,
 						source: file.name,
-						userId,
+						userId: dbUser.id,
 						url: blob.url,
 					},
 				};

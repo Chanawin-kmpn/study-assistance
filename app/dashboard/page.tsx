@@ -4,11 +4,18 @@ import React, { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { uploadDocument } from "@/lib/actions/actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+	Card,
+	CardHeader,
+	CardTitle,
+	CardContent,
+	CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Upload, Loader2, BrainCircuit } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DefaultChatTransport } from "ai";
+import ReactMarkdown from "react-markdown";
 
 const Page = () => {
 	// ใช้ useChat แบบในวิดีโอ
@@ -81,10 +88,10 @@ const Page = () => {
 						<ul className="text-sm text-blue-700 list-disc pl-4 space-y-2">
 							<li>Upload PDF course materials first.</li>
 							<li>
-								Ask specific questions like &qout;What is React Hook?&qout;
+								Ask specific questions like &quot;What is React Hook?&quot;
 							</li>
 							<li>
-								Type &qout;Generate Quiz&qout; to test yourself (Future
+								Type &quot;Generate Quiz&quot; to test yourself (Future
 								Feature).
 							</li>
 						</ul>
@@ -101,7 +108,7 @@ const Page = () => {
 					</CardTitle>
 				</CardHeader>
 
-				<CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+				<CardContent className="flex-1 flex flex-col p-0 overflow-y-auto relative">
 					{/* แสดง error จาก useChat ถ้ามี */}
 					{error && (
 						<div className="text-red-500 text-sm p-3 border-b bg-red-50">
@@ -136,7 +143,7 @@ const Page = () => {
 													key={`${m.id}-${index}`}
 													className="whitespace-pre-wrap"
 												>
-													{part.text}
+													<ReactMarkdown>{part.text}</ReactMarkdown>
 												</div>
 											);
 										}
@@ -152,8 +159,9 @@ const Page = () => {
 							</div>
 						)}
 					</ScrollArea>
-
-					<div className="p-4 border-t bg-white">
+				</CardContent>
+				<CardFooter>
+					<div className="p-4 border-t bg-white  w-full">
 						<form onSubmit={handleSubmit} className="flex gap-2">
 							<Input
 								value={input}
@@ -174,7 +182,7 @@ const Page = () => {
 							)}
 						</form>
 					</div>
-				</CardContent>
+				</CardFooter>
 			</Card>
 		</div>
 	);
