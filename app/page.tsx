@@ -22,7 +22,7 @@ export default function HomePage() {
 					<div className="flex flex-col lg:flex-row items-center gap-12">
 						{/* Text Content */}
 						<div className="lg:w-1/2 space-y-8">
-							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-[#100e5e]/10 text-[#100e5e] text-sm font-medium ">
+							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium ">
 								<span className="relative flex h-2 w-2">
 									<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
 									<span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
@@ -30,19 +30,17 @@ export default function HomePage() {
 								AI-Powered Learning Platform
 							</div>
 
-							<h1 className="text-4xl md:text-6xl font-bold text-[#100e5e]  leading-tight">
+							<h1 className="text-4xl md:text-6xl font-bold text-primary  leading-tight">
 								Smart Learning <br />
-								<span className="text-[#f97607]">Deeper & More Amazing</span>
+								<span className="text-secondary">Deeper & More Amazing</span>
 							</h1>
 
 							<p className="text-slate-600 text-lg  leading-relaxed max-w-xl">
 								SchoolMate คือผู้ช่วยอัจฉริยะที่จะเปลี่ยนเอกสารการเรียนของคุณ
 								ให้กลายเป็นบทเรียนที่เข้าใจง่าย เราช่วยคุณ{" "}
-								<strong className="text-[#100e5e]">
-									สรุปเนื้อหา (Summary)
-								</strong>
-								,<strong className="text-[#100e5e]"> ตอบคำถาม (Q&A)</strong> และ
-								<strong className="text-[#100e5e]">
+								<strong className="text-primary">สรุปเนื้อหา (Summary)</strong>,
+								<strong className="text-primary"> ตอบคำถาม (Q&A)</strong> และ
+								<strong className="text-primary">
 									{" "}
 									สร้างแบบฝึกหัด (Generate Quiz)
 								</strong>{" "}
@@ -58,7 +56,7 @@ export default function HomePage() {
 
 								<Button
 									variant="outline"
-									className="h-12 px-8 border-[#100e5e] text-[#100e5e] hover:bg-primary/5 rounded-full  text-base"
+									className="h-12 px-8 border-primary text-primary hover:bg-primary/5 rounded-full  text-base"
 								>
 									How it works
 								</Button>
@@ -74,12 +72,12 @@ export default function HomePage() {
 									))}
 								</div>
 								<div>
-									<div className="flex text-[#f97607]">
+									<div className="flex text-secondary">
 										{[1, 2, 3, 4, 5].map((i) => (
 											<Star key={i} className="w-3 h-3 fill-current" />
 										))}
 									</div>
-									<span className="font-semibold text-[#100e5e]">
+									<span className="font-semibold text-primary">
 										1,200+ Reviews
 									</span>{" "}
 									(48% Happy Students)
@@ -89,14 +87,14 @@ export default function HomePage() {
 
 						{/* Hero Image / Visual (Placeholder for "Boy holding book") */}
 						<div className="lg:w-1/2 relative">
-							<div className="relative z-10 bg-linear-to-br from-[#100e5e] to-[#2a2696] rounded-3xl p-1 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500">
-								<div className="bg-white rounded-[20px] overflow-hidden aspect-[4/3] relative flex items-center justify-center group">
+							<div className="relative z-10 bg-linear-to-br from-primary to-[#2a2696] rounded-3xl p-1 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-500">
+								<div className="bg-white rounded-[20px] overflow-hidden relative flex items-center justify-center group">
 									{/* Mockup Image Representation */}
 									<div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop')] bg-cover bg-center opacity-90 group-hover:scale-105  transition-transform duration-700"></div>
 									<div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur p-4 rounded-2xl shadow-xl max-w-[200px]">
 										<div className="flex items-center gap-2 mb-2">
 											<div className="w-3 h-3 rounded-full bg-secondary"></div>
-											<span className="text-xs font-bold  text-[#100e5e]">
+											<span className="text-xs font-bold  text-primary">
 												Quiz Generated!
 											</span>
 										</div>
@@ -119,7 +117,7 @@ export default function HomePage() {
 			<section className="py-20 bg-slate-50">
 				<div className="container mx-auto px-6">
 					<div className="text-center max-w-3xl mx-auto mb-16">
-						<h2 className="text-3xl font-bold  text-[#100e5e] mb-4">
+						<h2 className="text-3xl font-bold  text-primary mb-4">
 							We Share Knowledge With World
 						</h2>
 						<p className=" text-slate-600">
@@ -131,10 +129,10 @@ export default function HomePage() {
 					<div className="grid md:grid-cols-3 gap-8">
 						{/* Feature 1: Upload PDF */}
 						<div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-							<div className="w-14 h-14 bg-primary/10 text-[#100e5e] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+							<div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
 								<Upload className="w-7 h-7" />
 							</div>
-							<h3 className="text-xl font-bold  text-[#100e5e] mb-3">
+							<h3 className="text-xl font-bold  text-primary mb-3">
 								Upload PDF
 							</h3>
 							<p className="text-slate-500  text-sm leading-relaxed">
@@ -145,10 +143,10 @@ export default function HomePage() {
 
 						{/* Feature 2: Insert Link */}
 						<div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-							<div className="w-14 h-14 bg-secondary/10 text-[#f97607] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary group-hover:text-white transition-colors">
+							<div className="w-14 h-14 bg-secondary/10 text-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary group-hover:text-white transition-colors">
 								<LinkIcon className="w-7 h-7" />
 							</div>
-							<h3 className="text-xl font-bold  text-[#100e5e] mb-3">
+							<h3 className="text-xl font-bold  text-primary mb-3">
 								Insert Link
 							</h3>
 							<p className="text-slate-500  text-sm leading-relaxed">
@@ -162,7 +160,7 @@ export default function HomePage() {
 							<div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
 								<Type className="w-7 h-7" />
 							</div>
-							<h3 className="text-xl font-bold  text-[#100e5e] mb-3">
+							<h3 className="text-xl font-bold  text-primary mb-3">
 								Custom Text
 							</h3>
 							<p className="text-slate-500  text-sm leading-relaxed">
@@ -178,7 +176,7 @@ export default function HomePage() {
 			<section className="py-16 bg-primary text-white overflow-hidden relative">
 				<div className="absolute top-0 right-0 w-64 h-64 bg-secondary opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
 				<div className="container mx-auto px-6 text-center relative z-10">
-					<span className="text-[#f97607] font-bold  tracking-wider uppercase text-sm mb-2 block">
+					<span className="text-secondary font-bold  tracking-wider uppercase text-sm mb-2 block">
 						Coming Soon
 					</span>
 					<h2 className="text-3xl md:text-4xl font-bold  mb-8">
@@ -186,7 +184,7 @@ export default function HomePage() {
 					</h2>
 					<div className="flex flex-col md:flex-row justify-center gap-6 text-left max-w-4xl mx-auto">
 						<div className="flex items-start gap-4 bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10">
-							<CheckCircle2 className="w-6 h-6 text-[#f97607] shrink-0 mt-1" />
+							<CheckCircle2 className="w-6 h-6 text-secondary shrink-0 mt-1" />
 							<div>
 								<h4 className="font-bold  text-lg mb-1">
 									Personalized Progress
@@ -197,7 +195,7 @@ export default function HomePage() {
 							</div>
 						</div>
 						<div className="flex items-start gap-4 bg-white/10 p-6 rounded-2xl backdrop-blur-sm border border-white/10">
-							<CheckCircle2 className="w-6 h-6 text-[#f97607] shrink-0 mt-1" />
+							<CheckCircle2 className="w-6 h-6 text-secondary shrink-0 mt-1" />
 							<div>
 								<h4 className="font-bold  text-lg mb-1">Gamification</h4>
 								<p className="text-slate-300  text-sm">

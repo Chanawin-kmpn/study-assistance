@@ -32,13 +32,16 @@ export async function DELETE(req: Request, props: Props) {
 			return new NextResponse("Not found", { status: 404 });
 		}
 
-		await deleteVectorsByDocumentId(document.id);
+		await deleteVectorsByDocumentId(document.id, userId);
 
 		if (document.url) {
 			try {
 				await del(document.url);
 			} catch (error) {
-				console.error("Error deleting blob file", error);
+				console.error(
+					`Error deleting blob file for document ${document.id} at ${document.url}:`,
+					error
+				);
 			}
 		}
 
