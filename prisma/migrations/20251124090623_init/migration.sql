@@ -20,6 +20,7 @@ CREATE TABLE "Document" (
     "name" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pageCount" INTEGER,
 
     CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
 );

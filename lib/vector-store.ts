@@ -16,3 +16,16 @@ export async function getVectorStore() {
 }
 
 export { embeddings };
+
+export async function deleteVectorsByDocumentId(
+	documentId: string,
+	userId?: string
+) {
+	const index = await getVectorStore();
+
+	await index.deleteMany(
+		userId
+			? { documentId: { $eq: documentId }, userId: { $eq: userId } }
+			: { documentId: { $eq: documentId } }
+	);
+}

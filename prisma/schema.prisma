@@ -44,6 +44,7 @@ model Document {
   name      String // ชื่อไฟล์ PDF
   url       String // URL ของไฟล์ (ถ้าเก็บใน Cloud Storage)
   createdAt DateTime @default(now())
+  pageCount Int?
 
   // สัมพันธ์กับ Chat (ถ้าอยากให้แชทนี้คุยเรื่องไฟล์นี้โดยเฉพาะ)
   chats   Chat[]
