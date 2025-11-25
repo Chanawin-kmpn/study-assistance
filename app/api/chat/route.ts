@@ -1,12 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { embeddings, getVectorStore } from "@/lib/vector-store";
 import { google } from "@ai-sdk/google";
 import { streamText, type UIMessage, convertToModelMessages } from "ai";
 
 export const maxDuration = 30;
 
+type ChatRequestBody = {
+	messages: UIMessage[];
+	documentId?: string; // 👈 เพิ่ม
+};
+
 export async function POST(req: Request) {
 	try {
-		const { messages }: { messages: UIMessage[] } = await req.json();
+		const { messages, documentId }: ChatRequestBody = await req.json();
+		console.log(documentId);
 
 		if (!messages || messages.length === 0) {
 			return new Response("No messages provided", { status: 400 });
@@ -36,11 +43,14 @@ export async function POST(req: Request) {
 			vector: queryEmbedding,
 			topK: 3,
 			includeMetadata: true,
+			// 👇 ถ้ามี documentId ให้ filter เฉพาะ chunk ของไฟล์นี้
+			// NOTE: ตรงนี้ต้องให้ตรงกับ field จริงใน metadata ของคุณ
+			filter: documentId ? { documentId } : undefined,
 		});
 
 		const context =
 			queryResponse.matches
-				?.map((match) => match.metadata?.text)
+				?.map((match: any) => match.metadata?.text)
 				.filter(Boolean)
 				.join("\n\n---\n\n") ?? "";
 
@@ -55,7 +65,6 @@ ${context}
 
 		const model = google("gemini-flash-latest");
 
-		// ✅ รวม system + history แล้ว convertToModelMessages ตามที่วิดีโอบอก
 		const result = streamText({
 			model,
 			messages: convertToModelMessages([
@@ -68,7 +77,6 @@ ${context}
 			]),
 		});
 
-		// ✅ ใช้ toUIMessageStreamResponse() ตามคลิป Chat with AI
 		return result.toUIMessageStreamResponse();
 	} catch (error) {
 		console.error("Error streaming text:", error);

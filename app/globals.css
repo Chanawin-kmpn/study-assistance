@@ -235,7 +235,7 @@
 		@apply border-border outline-ring/50;
 	}
 	body {
-		font-family: var(--font-inter), var(--font-sarabun), sans-serif; /* ใช้ Inter+Sarabun เป็นค่าเริ่มต้น */
+		font-family: var(--font-inter), var(--font-sarabun), sans-serif;
 		background-color: var(--color-background);
 		color: var(--color-foreground);
 	}

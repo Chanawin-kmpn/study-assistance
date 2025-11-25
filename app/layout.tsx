@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Prompt, Sarabun } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import MainSidebar from "@/components/MainSidebar";
 
 const prompt = Prompt({
 	weight: ["400", "500", "600", "700"],
@@ -51,9 +52,11 @@ export default function RootLayout({
 					${jetbrains.variable} 
 					font-body  
 					antialiased
+					bg-slate-50 flex h-screen overflow-hidden
 					`}
 				>
-					{children}
+					<MainSidebar />
+					<main className="flex-1 overflow-auto relative">{children}</main>
 				</body>
 			</html>
 		</ClerkProvider>
