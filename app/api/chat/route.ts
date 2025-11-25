@@ -13,7 +13,6 @@ type ChatRequestBody = {
 export async function POST(req: Request) {
 	try {
 		const { messages, documentId }: ChatRequestBody = await req.json();
-		console.log(documentId);
 
 		if (!messages || messages.length === 0) {
 			return new Response("No messages provided", { status: 400 });

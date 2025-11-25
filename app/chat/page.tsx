@@ -102,7 +102,7 @@ export default function DefaultChatPage() {
 			{/* --- Header with Search --- */}
 			<header className="px-8 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 bg-slate-50 z-20">
 				<div>
-					<h1 className="text-2xl font-bold text-[#100e5e]">PDF Chat Space</h1>
+					<h1 className="text-2xl font-bold text-primary">PDF Chat Space</h1>
 					<p className="text-slate-500 text-sm">
 						Manage your study materials and start learning.
 					</p>
@@ -113,7 +113,7 @@ export default function DefaultChatPage() {
 						placeholder="Search documents..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9 w-full md:w-72 rounded-full border-slate-200 bg-white focus-visible:ring-[#f97607]"
+						className="pl-9 w-full md:w-72 rounded-full border-slate-200 bg-white focus-visible:ring-secondary"
 					/>
 				</div>
 			</header>
@@ -124,8 +124,8 @@ export default function DefaultChatPage() {
 					className={`w-full max-w-2xl bg-white rounded-3xl shadow-lg border-2 transition-all duration-300 cursor-pointer p-8 text-center group mb-12
                 ${
 									dragActive
-										? "border-[#f97607] bg-orange-50 scale-[1.02]"
-										: "border-dashed border-slate-200 hover:border-[#100e5e]/30 hover:shadow-xl"
+										? "border-secondary bg-orange-50 scale-[1.02]"
+										: "border-dashed border-slate-200 hover:border-primary/30 hover:shadow-xl"
 								}
              `}
 					onClick={() => fileInputRef.current?.click()}
@@ -143,8 +143,8 @@ export default function DefaultChatPage() {
 				>
 					{isUploading ? (
 						<div className="flex flex-col items-center py-4">
-							<Loader2 className="w-10 h-10 text-[#f97607] animate-spin mb-3" />
-							<h3 className="text-base font-bold text-[#100e5e]">
+							<Loader2 className="w-10 h-10 text-secondary animate-spin mb-3" />
+							<h3 className="text-base font-bold text-primary">
 								Uploading & Processing...
 							</h3>
 							<p className="text-slate-400 text-xs">
@@ -154,15 +154,13 @@ export default function DefaultChatPage() {
 					) : (
 						<div className="flex flex-col items-center py-4">
 							<div
-								className={`w-16 h-16 rounded-full bg-[#100e5e]/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
-									dragActive
-										? "bg-[#f97607]/10 text-[#f97607]"
-										: "text-[#100e5e]"
+								className={`w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
+									dragActive ? "bg-secondary/10 text-secondary" : "text-primary"
 								}`}
 							>
 								<Upload className="w-8 h-8" />
 							</div>
-							<h3 className="text-xl font-bold text-[#100e5e] mb-1">
+							<h3 className="text-xl font-bold text-primary mb-1">
 								Drop PDF here to Upload
 							</h3>
 							<p className="text-slate-400 mb-6 text-sm">
@@ -171,7 +169,7 @@ export default function DefaultChatPage() {
 
 							<Button
 								variant="outline"
-								className="border-[#100e5e] text-[#100e5e] hover:bg-[#100e5e] hover:text-white rounded-full px-6 h-9 text-xs"
+								className="border-primary text-primary hover:bg-primary hover:text-white rounded-full px-6 h-9 text-xs"
 							>
 								Browse File
 							</Button>
@@ -194,7 +192,7 @@ export default function DefaultChatPage() {
 				{/* --- Document List Section --- */}
 				<div className="w-full">
 					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-lg font-bold text-[#100e5e] flex items-center gap-2">
+						<h2 className="text-lg font-bold text-primary flex items-center gap-2">
 							<FileText className="w-5 h-5" />
 							My Documents ({filteredDocuments.length})
 						</h2>
@@ -209,12 +207,12 @@ export default function DefaultChatPage() {
 							{filteredDocuments.map((doc) => (
 								<Card
 									key={doc.id}
-									className="group hover:shadow-md hover:border-[#f97607]/50 transition-all border-slate-200 bg-white cursor-pointer"
+									className="group hover:shadow-md hover:border-secondary/50 transition-all border-slate-200 bg-white cursor-pointer"
 									onClick={() => router.push(`/chat/${doc.id}`)}
 								>
 									<CardContent className="p-4">
 										<div className="flex justify-between items-start mb-3">
-											<div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-[#100e5e] group-hover:bg-[#100e5e] group-hover:text-white transition-colors">
+											<div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
 												<FileText className="w-5 h-5" />
 											</div>
 
@@ -230,7 +228,7 @@ export default function DefaultChatPage() {
 											</Button>
 										</div>
 
-										<h3 className="font-semibold text-slate-700 text-sm line-clamp-2 mb-2 h-10 group-hover:text-[#100e5e]">
+										<h3 className="font-semibold text-slate-700 text-sm line-clamp-2 mb-2 h-10 group-hover:text-primary">
 											{doc.name}
 										</h3>
 

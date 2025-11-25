@@ -6,6 +6,7 @@ import React, {
 	useCallback,
 	FormEvent,
 	useRef,
+	useMemo,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
@@ -59,11 +60,16 @@ const ChatPage = () => {
 
 	// ---------- Chat State ----------
 	const [input, setInput] = useState("");
+	const chatTransport = useMemo(
+		() =>
+			new DefaultChatTransport({
+				api: "/api/chat",
+				body: { documentId: selectedDocumentId },
+			}),
+		[selectedDocumentId]
+	);
 	const { messages, status, sendMessage, error, stop } = useChat({
-		transport: new DefaultChatTransport({
-			api: "/api/chat",
-			body: { documentId: selectedDocumentId },
-		}),
+		transport: chatTransport,
 		id: selectedDocumentId || "default-chat",
 	});
 	const isThinking = status === "submitted" || status === "streaming";
