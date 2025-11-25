@@ -1,4 +1,3 @@
-// components/MainSidebar.tsx
 "use client";
 
 import React from "react";
@@ -16,43 +15,46 @@ import {
 export default function MainSidebar() {
 	const pathname = usePathname();
 
-	// Helper เช็คว่าเมนูไหน Active
-
 	const menuItems = [
 		{ name: "Home", icon: Home, path: "/" },
-		{ name: "Quiz", icon: FileText, path: "/quiz" }, // สมมติเส้นทาง
 		{ name: "PDF Chat", icon: MessageSquareText, path: "/chat" },
+		{ name: "My Quizzes", icon: FileText, path: "/quiz" },
 	];
 
 	return (
-		<aside className="w-64 h-full bg-primary text-white flex flex-col shrink-0 shadow-xl z-50 ">
+		<aside className="glass-panel w-64 h-full flex flex-col shrink-0 z-50 font-prompt transition-all duration-300">
 			{/* Logo Section */}
-			<div className="h-20 flex items-center px-6 border-b border-[#1e1b85]">
+			<div className="h-20 flex items-center px-6">
 				<div className="flex items-center gap-3">
-					<div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center text-white shadow-lg shadow-orange-900/20">
+					<div className="w-10 h-10 bg-white/80 rounded-xl flex items-center justify-center text-primary shadow-sm border border-white/50">
 						<GraduationCap className="w-6 h-6" />
 					</div>
-					<span className="text-xl font-bold tracking-wide">SchoolMate</span>
+					<span className="text-lg font-bold text-primary tracking-tight">
+						SchoolMate
+					</span>
 				</div>
 			</div>
 
 			{/* Menu Section */}
-			<div className="flex-1 py-8 px-4 space-y-3">
+			<div className="flex-1 py-6 px-3 space-y-1">
+				<div className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+					Menu
+				</div>
 				{menuItems.map((item) => (
 					<Link
 						key={item.path}
 						href={item.path}
-						className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group ${
+						className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
 							item.path === pathname
-								? "bg-secondary text-white shadow-md font-semibold"
-								: "text-slate-300 hover:bg-[#1e1b85] hover:text-white"
+								? "bg-white shadow-sm text-primary font-semibold ring-1 ring-slate-100"
+								: "text-slate-500 hover:bg-white/60 hover:text-slate-800"
 						}`}
 					>
 						<item.icon
-							className={`w-5 h-5 ${
+							className={`w-5 h-5 transition-colors ${
 								item.path === pathname
-									? "text-white"
-									: "text-slate-400 group-hover:text-white"
+									? "text-secondary"
+									: "text-slate-400 group-hover:text-slate-600"
 							}`}
 						/>
 						<span>{item.name}</span>
@@ -61,17 +63,13 @@ export default function MainSidebar() {
 			</div>
 
 			{/* Bottom Section */}
-			<div className="p-4 border-t border-[#1e1b85]">
-				{/* Contact / Email Mock */}
-				<button className="w-full flex items-center gap-4 px-4 py-3 mb-4 text-slate-400 hover:text-white hover:bg-[#1e1b85] rounded-xl transition-colors">
-					<div className="w-8 h-8 rounded-full border border-slate-500 flex items-center justify-center">
-						<Mail className="w-4 h-4" />
-					</div>
-					<span className="text-sm ">Contact Support</span>
+			<div className="p-4 border-t border-white/20">
+				<button className="w-full flex items-center gap-3 px-3 py-2 mb-3 text-slate-500 hover:text-primary hover:bg-white/50 rounded-lg transition-colors text-sm font-medium">
+					<Mail className="w-4 h-4" />
+					<span>Contact Support</span>
 				</button>
 
-				{/* Clerk User Button */}
-				<div className="flex items-center gap-3 px-4 py-2 bg-[#0b0945] rounded-xl border border-[#1e1b85]">
+				<div className="flex items-center gap-3 px-3 py-2 bg-white/40 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm">
 					<UserButton
 						appearance={{
 							elements: {
@@ -80,9 +78,13 @@ export default function MainSidebar() {
 							},
 						}}
 					/>
-					<div className="flex flex-col">
-						<span className="text-xs text-slate-300 font-inter">Account</span>
-						<span className="text-[10px] text-slate-500 ">Manage Profile</span>
+					<div className="flex flex-col overflow-hidden">
+						<span className="text-xs font-bold text-slate-700 truncate font-inter">
+							My Account
+						</span>
+						<span className="text-[10px] text-slate-400 truncate">
+							Free Plan
+						</span>
 					</div>
 				</div>
 			</div>

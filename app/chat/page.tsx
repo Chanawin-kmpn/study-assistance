@@ -107,15 +107,6 @@ export default function DefaultChatPage() {
 						Manage your study materials and start learning.
 					</p>
 				</div>
-				<div className="relative w-full md:w-auto">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-					<Input
-						placeholder="Search documents..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="pl-9 w-full md:w-72 rounded-full border-slate-200 bg-white focus-visible:ring-secondary"
-					/>
-				</div>
 			</header>
 
 			<div className="flex-1 flex flex-col items-center p-6 pb-20 max-w-6xl mx-auto w-full">
@@ -196,6 +187,15 @@ export default function DefaultChatPage() {
 							<FileText className="w-5 h-5" />
 							My Documents ({filteredDocuments.length})
 						</h2>
+						<div className="relative w-full md:w-auto">
+							<Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+							<Input
+								placeholder="Search documents..."
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								className="pl-9 w-full md:w-72 rounded-full border-slate-200 bg-white focus-visible:ring-secondary"
+							/>
+						</div>
 					</div>
 
 					{isLoadingDocs ? (
