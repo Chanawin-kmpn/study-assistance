@@ -3,13 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+// Import components จาก Clerk
+import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import {
 	Home,
 	FileText,
 	MessageSquareText,
 	Mail,
 	GraduationCap,
+	LogIn, // เพิ่ม Icon
 } from "lucide-react";
 
 export default function MainSidebar() {
@@ -69,24 +71,39 @@ export default function MainSidebar() {
 					<span>Contact Support</span>
 				</button>
 
-				<div className="flex items-center gap-3 px-3 py-2 bg-white/40 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm">
-					<UserButton
-						appearance={{
-							elements: {
-								userButtonAvatarBox: "w-8 h-8",
-								userButtonTrigger: "focus:shadow-none",
-							},
-						}}
-					/>
-					<div className="flex flex-col overflow-hidden">
-						<span className="text-xs font-bold text-slate-700 truncate font-inter">
-							My Account
-						</span>
-						<span className="text-[10px] text-slate-400 truncate">
-							Free Plan
-						</span>
+				{/* --- Clerk Auth Logic --- */}
+
+				{/* กรณี Login แล้ว: แสดง User Profile */}
+				<SignedIn>
+					<div className="flex items-center gap-3 px-3 py-2 bg-white/40 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm">
+						<UserButton
+							appearance={{
+								elements: {
+									userButtonAvatarBox: "w-8 h-8",
+									userButtonTrigger: "focus:shadow-none",
+								},
+							}}
+						/>
+						<div className="flex flex-col overflow-hidden">
+							<span className="text-xs font-bold text-slate-700 truncate font-inter">
+								My Account
+							</span>
+							<span className="text-[10px] text-slate-400 truncate">
+								Manage Plan
+							</span>
+						</div>
 					</div>
-				</div>
+				</SignedIn>
+
+				{/* กรณียังไม่ Login: แสดงปุ่ม Sign In */}
+				<SignedOut>
+					<SignInButton mode="modal">
+						<button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-primary hover:bg-[#2a2696] text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm font-bold">
+							<LogIn className="w-4 h-4" />
+							<span>Sign In</span>
+						</button>
+					</SignInButton>
+				</SignedOut>
 			</div>
 		</aside>
 	);

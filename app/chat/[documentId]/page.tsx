@@ -9,6 +9,8 @@ import React, {
 	useMemo,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
+// 1. Import Clerk Hooks & Components
+import { useUser } from "@clerk/nextjs";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import dynamic from "next/dynamic";
@@ -36,8 +38,8 @@ const PdfMainViewer = dynamic(
 	{ ssr: false }
 );
 
-// Type สำหรับ Ref เพื่อเรียกใช้ scrollToPage
 import type { PdfMainViewerHandle } from "@/components/PdfMainViewer";
+import { AuthRequiredCard } from "@/components/AuthRequireCard";
 
 type DocumentItem = {
 	id: string;
@@ -48,6 +50,8 @@ type DocumentItem = {
 const ChatPage = () => {
 	const router = useRouter();
 	const params = useParams<{ documentId: string }>();
+	// 2. เรียกใช้ Auth Hook
+	const { isLoaded, isSignedIn } = useUser();
 	const selectedDocumentId = params.documentId ?? null;
 
 	// ---------- Document & Viewer State ----------
@@ -55,11 +59,12 @@ const ChatPage = () => {
 	const [numPages, setNumPages] = useState<number>(0);
 	const [selectedPage, setSelectedPage] = useState<number>(1);
 
-	// Ref ไปยัง Main Viewer
 	const mainViewerRef = useRef<PdfMainViewerHandle>(null);
 
 	// ---------- Chat State ----------
 	const [input, setInput] = useState("");
+
+	// หมายเหตุ: chatTransport ยังคงถูกสร้าง แต่ถ้าไม่ login API ปลายทางควรมี Middleware กันไว้อีกชั้น
 	const chatTransport = useMemo(
 		() =>
 			new DefaultChatTransport({
@@ -76,9 +81,8 @@ const ChatPage = () => {
 
 	// ---------- Fetch Document Info ----------
 	const fetchDocumentInfo = useCallback(async () => {
-		if (!selectedDocumentId) return;
+		if (!selectedDocumentId || !isSignedIn) return; // 3. เพิ่ม Check !isSignedIn ป้องกันการ Fetch
 		try {
-			// สมมติว่าดึง list มาหา (หรือจะ fetch by id ก็ได้)
 			const res = await fetch("/api/documents");
 			if (!res.ok) return;
 			const data: DocumentItem[] = await res.json();
@@ -87,26 +91,24 @@ const ChatPage = () => {
 		} catch (err) {
 			console.error("Failed to fetch document info", err);
 		}
-	}, [selectedDocumentId]);
+	}, [selectedDocumentId, isSignedIn]);
 
 	useEffect(() => {
-		// Defer calling the async fetch to avoid synchronous setState during the effect,
-		// which can trigger cascading renders; use setTimeout to schedule it after the effect.
-		const t = setTimeout(() => {
-			void fetchDocumentInfo();
-		}, 0);
-		return () => clearTimeout(t);
-	}, [fetchDocumentInfo]);
+		// รอให้ Loaded และ SignedIn ก่อนค่อย Fetch
+		if (isLoaded && isSignedIn) {
+			const t = setTimeout(() => {
+				void fetchDocumentInfo();
+			}, 0);
+			return () => clearTimeout(t);
+		}
+	}, [fetchDocumentInfo, isLoaded, isSignedIn]);
 
 	// ---------- Handlers ----------
-
-	// เมื่อคลิกที่ Sidebar -> อัปเดต state และสั่ง Main Viewer ให้เลื่อน
 	const handleSidebarSelect = (page: number) => {
 		setSelectedPage(page);
 		mainViewerRef.current?.scrollToPage(page);
 	};
 
-	// เมื่อ Main Viewer เลื่อน (Observer) -> อัปเดต state อย่างเดียว (ไม่ต้องสั่งเลื่อนกลับ)
 	const handleMainPageChange = (page: number, total: number) => {
 		if (page !== selectedPage) {
 			setSelectedPage(page);
@@ -125,7 +127,31 @@ const ChatPage = () => {
 		router.push(`/quiz/create/pdf-upload?documentId=${selectedDocumentId}`);
 	};
 
-	// ---------- UI (Light Theme) ----------
+	// ---------- RENDER LOGIC ----------
+
+	// 4. Loading State (ระหว่างเช็ค User)
+	if (!isLoaded) {
+		return (
+			<div className="flex h-screen items-center justify-center bg-slate-50">
+				<Loader2 className="w-10 h-10 text-primary animate-spin" />
+			</div>
+		);
+	}
+
+	// 5. Guest State (ยังไม่ Login) -> แสดง UI สวยๆ
+	if (!isSignedIn) {
+		return (
+			<div className="flex items-center justify-center h-full">
+				<AuthRequiredCard
+					title="Access Restricted"
+					description="To view this document and chat with AI, please sign in to your account."
+					showBackButton={true}
+				/>
+			</div>
+		);
+	}
+
+	// 6. Main UI (Login แล้ว)
 	return (
 		<div className="flex h-screen overflow-hidden bg-white text-slate-900 font-sans">
 			{/* 1. Left Sidebar: Back + Thumbnails */}

@@ -118,7 +118,7 @@ export const PdfMainViewer = forwardRef<
 						}}
 						className={`mb-8 transition-all duration-500 origin-top ${
 							page === selectedPage
-								? "shadow-xl scale-[1.02] ring-1 ring-indigo-200 z-10"
+								? "shadow-xl ring-1 ring-indigo-200 z-10"
 								: "shadow-sm opacity-90 hover:opacity-100"
 						}`}
 					>
