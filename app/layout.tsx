@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Prompt, Sarabun } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import MainSidebar from "@/components/MainSidebar";
+import { Toaster } from "sonner";
 
 const prompt = Prompt({
 	weight: ["400", "500", "600", "700"],
@@ -55,6 +56,7 @@ export default function RootLayout({
 					bg-slate-50 flex h-screen overflow-hidden
 					`}
 				>
+					<Toaster richColors closeButton />
 					<MainSidebar />
 					<main className="flex-1 overflow-auto relative">{children}</main>
 				</body>

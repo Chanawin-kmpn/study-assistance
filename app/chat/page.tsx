@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
+import { TWENTY_MB_IN_BYPTES } from "@/constants/constant";
+import { toast } from "sonner";
 
 type DocumentItem = {
 	id: string;
@@ -34,7 +36,6 @@ export default function DefaultChatPage() {
 	const [documents, setDocuments] = useState<DocumentItem[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isUploading, setIsUploading] = useState(false);
-	const [uploadStatus, setUploadStatus] = useState<string>("");
 	const [dragActive, setDragActive] = useState(false);
 	const [isLoadingDocs, setIsLoadingDocs] = useState(true);
 
@@ -71,19 +72,22 @@ export default function DefaultChatPage() {
 	// --- Actions ---
 	const handleUploadProcess = async (file: File) => {
 		if (!file || file.type !== "application/pdf") return;
+		if (file.size > TWENTY_MB_IN_BYPTES) {
+			toast.error("File is larger than 20MB.");
+			return;
+		}
 		setIsUploading(true);
-		setUploadStatus("");
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
 			const result = await uploadDocument(formData);
 			if (result.documentId) {
 				await fetchDocuments();
-				setUploadStatus("Upload Complete!");
+				toast.success("Upload Complete!");
 			}
 		} catch (err) {
 			console.error("Failed to upload document", err);
-			setUploadStatus("Upload failed");
+			toast.error("Upload failed");
 		} finally {
 			setIsUploading(false);
 		}
@@ -185,11 +189,6 @@ export default function DefaultChatPage() {
 									>
 										Browse File
 									</Button>
-									{uploadStatus && (
-										<p className="mt-3 text-xs font-medium text-emerald-600">
-											{uploadStatus}
-										</p>
-									)}
 								</div>
 							)}
 							<input
