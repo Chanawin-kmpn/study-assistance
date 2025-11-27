@@ -36,9 +36,11 @@ export async function uploadDocument(formData: FormData) {
 
 		const file = formData.get("file") as File;
 		if (!file) throw new Error("No file uploaded");
+		const timestamp = Date.now();
+		const uniqueFileName = `${userId}-${timestamp}-${file.name}`;
 
 		// ----- upload ไฟล์ไป Blob -----
-		const blob = await put(file.name, file, {
+		const blob = await put(uniqueFileName, file, {
 			access: "public",
 			token: process.env.BLOB_READ_WRITE_TOKEN,
 		});

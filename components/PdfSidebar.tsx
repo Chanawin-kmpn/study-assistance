@@ -51,6 +51,7 @@ export function PdfSidebar({
 				className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent"
 			>
 				<Document
+					key={fileUrl}
 					file={fileUrl}
 					loading={<div className="text-xs text-slate-400 p-2">Loading...</div>}
 					onLoadSuccess={({ numPages }) => setNumPages(numPages)}
@@ -81,7 +82,7 @@ export function PdfSidebar({
 							</div>
 							<Page
 								pageNumber={page}
-								width={90}
+								width={150}
 								renderTextLayer={false}
 								renderAnnotationLayer={false}
 								className="opacity-90 hover:opacity-100 transition-opacity"
