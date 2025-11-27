@@ -36,8 +36,10 @@ export async function uploadDocument(formData: FormData) {
 
 		const file = formData.get("file") as File;
 		if (!file) throw new Error("No file uploaded");
-		const timestamp = Date.now();
-		const uniqueFileName = `${userId}-${timestamp}-${file.name}`;
+		const uniqueId = `${Date.now()}-${Math.random()
+			.toString(36)
+			.substring(2, 9)}`;
+		const uniqueFileName = `${userId}-${uniqueId}-${file.name}`;
 
 		// ----- upload ไฟล์ไป Blob -----
 		const blob = await put(uniqueFileName, file, {

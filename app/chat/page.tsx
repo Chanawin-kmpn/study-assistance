@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { TWENTY_MB_IN_BYPTES } from "@/constants/constant";
+import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
 import { toast } from "sonner";
 
 type DocumentItem = {
@@ -86,7 +86,7 @@ export default function DefaultChatPage() {
 	// --- Actions ---
 	const handleUploadProcess = async (file: File) => {
 		if (!file || file.type !== "application/pdf") return;
-		if (file.size > TWENTY_MB_IN_BYPTES) {
+		if (file.size > TWENTY_MB_IN_BYTES) {
 			toast.error("File is larger than 20MB.");
 			return;
 		}
@@ -95,13 +95,14 @@ export default function DefaultChatPage() {
 			const formData = new FormData();
 			formData.append("file", file);
 			const result = await uploadDocument(formData);
-			if (result.documentId) {
+			if (result.documentId && result.success) {
 				await fetchDocuments();
 				toast.success("Upload Complete!");
+			} else {
+				toast.error(result.message || "Upload failed");
 			}
 		} catch (err) {
 			console.error("Failed to upload document", err);
-			toast.error("Upload failed");
 		} finally {
 			setIsUploading(false);
 		}

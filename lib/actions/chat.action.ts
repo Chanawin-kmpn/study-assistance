@@ -36,11 +36,3 @@ export async function getChatMessages(chatId: string) {
 		orderBy: { createdAt: "asc" },
 	});
 }
-
-// สร้าง Chat ID ใหม่ (จริงๆ ทำ Client Side ก็ได้ แต่ทำ Server ไว้เผื่อ Logic อื่นๆ)
-export async function createNewChatId() {
-	// เราใช้ cuid() จาก client side lib หรือจะ generate จาก DB ก็ได้
-	// แต่เพื่อให้ง่าย เราจะ generate UUID/CUID จากฝั่ง Client แล้วส่งไป API ก็สะดวก
-	// ดังนั้น function นี้อาจไม่จำเป็น ถ้าเราใช้ nanoid ฝั่ง client
-	return null;
-}
