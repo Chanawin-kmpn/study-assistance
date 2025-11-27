@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// Import components จาก Clerk
 import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import {
 	Home,
@@ -11,11 +10,15 @@ import {
 	MessageSquareText,
 	Mail,
 	GraduationCap,
-	LogIn, // เพิ่ม Icon
+	LogIn,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
 
 export default function MainSidebar() {
 	const pathname = usePathname();
+	// ✅ State ควบคุมการย่อ/ขยาย
+	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	const menuItems = [
 		{ name: "Home", icon: Home, path: "/" },
@@ -24,14 +27,39 @@ export default function MainSidebar() {
 	];
 
 	return (
-		<aside className="glass-panel w-64 h-full flex flex-col shrink-0 z-50 font-prompt transition-all duration-300">
+		<aside
+			className={`glass-panel h-full flex flex-col shrink-0 z-50 font-prompt transition-all duration-300 relative
+            ${isCollapsed ? "w-20" : "w-64"} 
+        `}
+		>
+			{/* ✅ Toggle Button */}
+			<button
+				onClick={() => setIsCollapsed(!isCollapsed)}
+				className="absolute -right-3 top-5 bg-white border border-slate-200 text-slate-500 rounded-full p-1 shadow-md hover:text-primary transition-colors z-50"
+			>
+				{isCollapsed ? (
+					<ChevronRight className="w-4 h-4" />
+				) : (
+					<ChevronLeft className="w-4 h-4" />
+				)}
+			</button>
+
 			{/* Logo Section */}
-			<div className="h-20 flex items-center px-6">
+			<div
+				className={`h-20 flex items-center ${
+					isCollapsed ? "justify-center" : "px-6"
+				} transition-all`}
+			>
 				<div className="flex items-center gap-3">
-					<div className="w-10 h-10 bg-white/80 rounded-xl flex items-center justify-center text-primary shadow-sm border border-white/50">
+					<div className="w-10 h-10 bg-white/80 rounded-xl flex items-center justify-center text-primary shadow-sm border border-white/50 shrink-0">
 						<GraduationCap className="w-6 h-6" />
 					</div>
-					<span className="text-lg font-bold text-primary tracking-tight">
+					{/* ซ่อนชื่อเมื่อย่อ */}
+					<span
+						className={`text-lg font-bold text-primary tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300
+                        ${isCollapsed ? "hidden" : "block"}
+                    `}
+					>
 						SchoolMate
 					</span>
 				</div>
@@ -39,43 +67,68 @@ export default function MainSidebar() {
 
 			{/* Menu Section */}
 			<div className="flex-1 py-6 px-3 space-y-1">
-				<div className="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+				<div
+					className={`px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest transition-all duration-300 whitespace-nowrap overflow-hidden
+                    ${isCollapsed ? "opacity-0 h-0 mb-0" : "opacity-100 h-auto"}
+                `}
+				>
 					Menu
 				</div>
 				{menuItems.map((item) => (
 					<Link
 						key={item.path}
 						href={item.path}
-						className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
-							item.path === pathname
-								? "bg-white shadow-sm text-primary font-semibold ring-1 ring-slate-100"
-								: "text-slate-500 hover:bg-white/60 hover:text-slate-800"
-						}`}
+						className={`flex items-center  gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative
+                        ${
+													item.path === pathname
+														? "bg-white shadow-sm text-primary font-semibold ring-1 ring-slate-100"
+														: "text-slate-500 hover:bg-white/60 hover:text-slate-800"
+												}
+                        ${isCollapsed ? "justify-center" : ""}
+                    `}
 					>
 						<item.icon
-							className={`w-5 h-5 transition-colors ${
+							className={`w-5 h-5 shrink-0 transition-colors ${
 								item.path === pathname
 									? "text-secondary"
 									: "text-slate-400 group-hover:text-slate-600"
 							}`}
 						/>
-						<span>{item.name}</span>
+
+						{/* ซ่อน Text เมื่อย่อ */}
+						<span
+							className={`whitespace-nowrap overflow-hidden transition-all duration-300
+                            ${isCollapsed ? "hidden" : "block"}
+                        `}
+						>
+							{item.name}
+						</span>
+
+						{/* (Optional) Tooltip เมื่อย่อ sidebar เอาเมาส์ชี้แล้วจะเห็นชื่อเมนู */}
+						{isCollapsed && (
+							<div className="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-lg">
+								{item.name}
+							</div>
+						)}
 					</Link>
 				))}
 			</div>
 
 			{/* Bottom Section */}
 			<div className="p-4 border-t border-white/20">
-				<button className="w-full flex items-center gap-3 px-3 py-2 mb-3 text-slate-500 hover:text-primary hover:bg-white/50 rounded-lg transition-colors text-sm font-medium">
-					<Mail className="w-4 h-4" />
-					<span>Contact Support</span>
-				</button>
-
 				{/* --- Clerk Auth Logic --- */}
 
-				{/* กรณี Login แล้ว: แสดง User Profile */}
+				{/* กรณี Login แล้ว */}
 				<SignedIn>
-					<div className="flex items-center gap-3 px-3 py-2 bg-white/40 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm">
+					<div
+						className={`flex items-center gap-3 px-3 py-2 bg-white/40 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm transition-all
+                        ${
+													isCollapsed
+														? "justify-center bg-transparent border-0 shadow-none px-0"
+														: ""
+												}
+                    `}
+					>
 						<UserButton
 							appearance={{
 								elements: {
@@ -84,7 +137,15 @@ export default function MainSidebar() {
 								},
 							}}
 						/>
-						<div className="flex flex-col overflow-hidden">
+						<div
+							className={`flex flex-col overflow-hidden transition-all duration-300
+                            ${
+															isCollapsed
+																? "w-0 opacity-0 hidden"
+																: "w-auto opacity-100"
+														}
+                        `}
+						>
 							<span className="text-xs font-bold text-slate-700 truncate font-inter">
 								My Account
 							</span>
@@ -95,12 +156,30 @@ export default function MainSidebar() {
 					</div>
 				</SignedIn>
 
-				{/* กรณียังไม่ Login: แสดงปุ่ม Sign In */}
+				{/* กรณียังไม่ Login */}
 				<SignedOut>
 					<SignInButton mode="modal">
-						<button className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-primary hover:bg-[#2a2696] text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-sm font-bold">
-							<LogIn className="w-4 h-4" />
-							<span>Sign In</span>
+						<button
+							className={`w-full flex items-center gap-2 bg-primary hover:bg-[#2a2696] text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 font-bold
+                            ${
+															isCollapsed
+																? "justify-center p-3 rounded-full aspect-square"
+																: "justify-center px-3 py-2.5 text-sm"
+														}
+                        `}
+						>
+							<LogIn className="w-4 h-4 shrink-0" />
+							<span
+								className={`whitespace-nowrap overflow-hidden transition-all duration-300
+                                ${
+																	isCollapsed
+																		? "w-0 opacity-0 hidden"
+																		: "w-auto opacity-100"
+																}
+                            `}
+							>
+								Sign In
+							</span>
 						</button>
 					</SignInButton>
 				</SignedOut>
