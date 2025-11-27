@@ -14,6 +14,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function MainSidebar() {
 	const pathname = usePathname();
@@ -35,7 +36,7 @@ export default function MainSidebar() {
 			{/* ✅ Toggle Button */}
 			<button
 				onClick={() => setIsCollapsed(!isCollapsed)}
-				className="absolute -right-3 top-5 bg-white border border-slate-200 text-slate-500 rounded-full p-1 shadow-md hover:text-primary transition-colors z-50"
+				className="absolute -right-3 top-12 bg-white border border-slate-200 text-slate-500 rounded-full p-1 shadow-md hover:text-primary transition-colors z-50 cursor-pointer"
 			>
 				{isCollapsed ? (
 					<ChevronRight className="w-4 h-4" />
@@ -52,7 +53,7 @@ export default function MainSidebar() {
 			>
 				<div className="flex items-center gap-3">
 					<div className="w-10 h-10 bg-white/80 rounded-xl flex items-center justify-center text-primary shadow-sm border border-white/50 shrink-0">
-						<GraduationCap className="w-6 h-6" />
+						<Image src="/images/logo.png" width={24} height={24} alt="Logo" />
 					</div>
 					{/* ซ่อนชื่อเมื่อย่อ */}
 					<span

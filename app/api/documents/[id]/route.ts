@@ -23,7 +23,7 @@ export async function DELETE(req: Request, props: Props) {
 		// 2. หา document (แก้ documentId -> id)
 		const document = await prisma.document.findFirst({
 			where: {
-				id: id, // ✅ แก้ตรงนี้
+				id: id,
 				userId,
 			},
 		});
