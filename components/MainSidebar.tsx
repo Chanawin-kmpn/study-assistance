@@ -8,8 +8,6 @@ import {
 	Home,
 	FileText,
 	MessageSquareText,
-	Mail,
-	GraduationCap,
 	LogIn,
 	ChevronLeft,
 	ChevronRight,
