@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,10 @@ import {
 	FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // อย่าลืมลง library นี้ หรือใช้ตัวอื่นตามโปรเจกต์
-import { uploadDocument } from "@/lib/actions/actions"; // Import Server Action
-import { TWENTY_MB_IN_BYTES } from "@/constants/constant"; // Import Constant
+import { toast } from "sonner";
+import { uploadDocument } from "@/lib/actions/actions"; // Server Action Upload
+import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
+import axios from "axios"; // ✅ เพิ่ม axios เข้ามา
 
 type QuizSourceType = "PDF" | "LINK" | "TEXT";
 
@@ -43,9 +45,9 @@ export const CreateQuizForm = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// --- State ---
-	const [isLoading, setIsLoading] = useState(false); // สำหรับตอนกด Generate Quiz
+	const [isLoading, setIsLoading] = useState(false);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [dragActive, setDragActive] = useState(false); // สำหรับ UI Drag & Drop
+	const [dragActive, setDragActive] = useState(false);
 
 	const [formData, setFormData] = useState({
 		title: "",
@@ -58,9 +60,13 @@ export const CreateQuizForm = ({
 		documentId: defaultDocumentId || "",
 	});
 
-	if (defaultDocumentId) {
-		setFormData((prev) => ({ ...prev, documentId: defaultDocumentId }));
-	}
+	// ถ้ามี defaultDocumentId เข้ามา (เช่นมาจากหน้า Chat) ให้ update state
+	// ใช้ useEffect เพื่อกัน infinite loop ถ้าใส่ใน render โดยตรง
+	React.useEffect(() => {
+		if (defaultDocumentId) {
+			setFormData((prev) => ({ ...prev, documentId: defaultDocumentId }));
+		}
+	}, [defaultDocumentId]);
 
 	const handleFileSelect = (file: File) => {
 		if (!file || file.type !== "application/pdf") {
@@ -72,10 +78,9 @@ export const CreateQuizForm = ({
 			return;
 		}
 
-		// เก็บไฟล์ไว้ที่ State ก่อน ยังไม่ส่งไป Server
 		setSelectedFile(file);
 
-		// Auto-fill Title จากชื่อไฟล์
+		// Auto-fill Title ถ้ายังไม่มี
 		if (!formData.title) {
 			setFormData((prev) => ({
 				...prev,
@@ -88,11 +93,11 @@ export const CreateQuizForm = ({
 		if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
 	};
 
-	// --- Submit Logic ---
+	// --- ✅ Submit Logic (แก้ไขใหม่) ---
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		// Validation
+		// 1. Validation เบื้องต้น
 		if (sourceType === "PDF" && !formData.documentId && !selectedFile) {
 			toast.error("Please select a PDF file.");
 			return;
@@ -110,29 +115,55 @@ export const CreateQuizForm = ({
 		try {
 			let targetDocumentId = formData.documentId;
 
+			// 2. ถ้าเป็น PDF และยังไม่อัปโหลด -> อัปโหลดก่อน
 			if (sourceType === "PDF" && selectedFile && !targetDocumentId) {
 				const uploadFormData = new FormData();
 				uploadFormData.append("file", selectedFile);
-				const uploadToastId = toast.loading("Uploading document...");
+
+				// แจ้งเตือน UI ว่ากำลังอัปโหลด
+
 				const result = await uploadDocument(uploadFormData);
+
 				if (!result.success || !result.documentId) {
-					toast.dismiss(uploadToastId);
 					toast.error(result.message || "Failed to upload file.");
 					setIsLoading(false);
-					return; // จบการทำงาน
+					return;
 				}
-				toast.dismiss(uploadToastId);
+
+				toast.success("Document uploaded. Generating quiz...");
 				targetDocumentId = result.documentId;
-				// Update State เผื่อไว้ (แต่จริงๆ เราจะใช้ targetDocumentId ยิงต่อเลย)
-				setFormData((prev) => ({ ...prev, documentId: targetDocumentId }));
 			}
 
-			await new Promise((resolve) => setTimeout(resolve, 2000));
+			// 3. ยิงเข้า API /api/quiz เพื่อสร้างโจทย์
+			// เตรียม Payload ให้ตรงกับ Zod Schema ใน API
+			const payload = {
+				title: formData.title,
+				description: formData.description,
+				difficulty: formData.difficulty,
+				questionAmount: formData.questionCount, // Mapping: questionCount -> questionAmount
+				specificRequirement: formData.specificRequirement,
+				sourceType: sourceType,
 
-			toast.success("Quiz generated successfully!");
-		} catch (error) {
+				// ส่งข้อมูลตามประเภท
+				documentId: sourceType === "PDF" ? targetDocumentId : undefined,
+				rawText: sourceType === "TEXT" ? formData.sourceText : undefined,
+				sourceUrl: sourceType === "LINK" ? formData.sourceUrl : undefined,
+			};
+
+			const response = await axios.post("/api/quiz", payload);
+
+			if (response.status === 200) {
+				toast.success("Quiz generated successfully!");
+				// 4. Redirect ไปหน้าทำข้อสอบ
+				router.push(`/quiz/${response.data.quizId}`);
+			} else {
+				toast.error("Failed to generate quiz.");
+			}
+		} catch (error: any) {
 			console.error("Error:", error);
-			toast.error("Something went wrong.");
+			// ดึง error message จาก API ถ้ามี
+			const msg = error.response?.data || "Something went wrong.";
+			toast.error(typeof msg === "string" ? msg : "Failed to create quiz");
 		} finally {
 			setIsLoading(false);
 		}
@@ -142,21 +173,18 @@ export const CreateQuizForm = ({
 		setSelectedFile(null);
 		setFormData((prev) => ({ ...prev, documentId: "", title: "" }));
 		if (fileInputRef.current) fileInputRef.current.value = "";
-
-		// ถ้าเปลี่ยนไฟล์ เราอาจจะลบ Query Param ออกเพื่อให้ URL สะอาด (Optional)
-		router.replace("/quiz/create/pdf-upload");
+		// ล้าง URL params ถ้ามี
+		router.replace("/quiz/create?type=PDF");
 	};
 
-	// --- Render Source Inputs ---
+	// --- Render Source Inputs (เหมือนเดิม) ---
 	const renderSourceInput = () => {
 		switch (sourceType) {
 			case "PDF":
-				// 1. กรณีมีไฟล์แล้ว (Selected / Uploaded)
 				if (formData.documentId || selectedFile) {
 					const fileName = selectedFile
 						? selectedFile.name
 						: `Document ID: ${formData.documentId?.slice(0, 8)}...`;
-
 					const isExisting = !!formData.documentId && !selectedFile;
 
 					return (
@@ -174,7 +202,6 @@ export const CreateQuizForm = ({
 							</Button>
 
 							<div className="w-20 h-20 bg-white shadow-md rounded-full flex items-center justify-center mb-4">
-								{/* ถ้าเลือกไฟล์เอง แสดงไอคอนปกติ / ถ้ามาจาก Chat แสดงไอคอน Check */}
 								{selectedFile ? (
 									<FileText className="w-10 h-10 text-indigo-500" />
 								) : (
@@ -196,17 +223,10 @@ export const CreateQuizForm = ({
 									{isExisting ? "Ready in Cloud" : "Ready to Upload"}
 								</p>
 							</div>
-
-							{!isExisting && (
-								<p className="text-[10px] text-slate-400 mt-4 max-w-[200px] text-center">
-									File will be uploaded when you click &quot;Generate Quiz&quot;
-								</p>
-							)}
 						</div>
 					);
 				}
 
-				// กรณี 2: ยังไม่ได้เลือกไฟล์ (แสดง Dropzone)
 				return (
 					<div
 						className={`flex flex-col items-center justify-center h-full rounded-xl border-2 transition-all duration-300 cursor-pointer p-8 text-center group relative overflow-hidden
@@ -216,7 +236,7 @@ export const CreateQuizForm = ({
 																: "border-dashed border-slate-300 bg-slate-50 hover:border-indigo-400 hover:bg-slate-100 hover:shadow-md"
 														}
                         `}
-						onClick={() => fileInputRef.current?.click()}
+						onClick={() => !isLoading && fileInputRef.current?.click()}
 						onDragOver={(e) => {
 							e.preventDefault();
 							setDragActive(true);
@@ -288,11 +308,9 @@ export const CreateQuizForm = ({
 								onChange={(e) =>
 									setFormData({ ...formData, sourceUrl: e.target.value })
 								}
+								disabled={isLoading}
 							/>
 						</div>
-						<p className="text-[10px] text-slate-400">
-							We will scrape the content...
-						</p>
 					</div>
 				);
 
@@ -309,12 +327,14 @@ export const CreateQuizForm = ({
 							onChange={(e) =>
 								setFormData({ ...formData, sourceText: e.target.value })
 							}
+							disabled={isLoading}
 						/>
 					</div>
 				);
 		}
 	};
 
+	// --- Render Form (เหมือนเดิม) ---
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -352,6 +372,7 @@ export const CreateQuizForm = ({
 							onChange={(e) =>
 								setFormData({ ...formData, description: e.target.value })
 							}
+							disabled={isLoading}
 						/>
 					</div>
 
@@ -363,6 +384,7 @@ export const CreateQuizForm = ({
 								onValueChange={(val) =>
 									setFormData({ ...formData, difficulty: val })
 								}
+								disabled={isLoading}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder="Select" />
@@ -387,6 +409,7 @@ export const CreateQuizForm = ({
 										questionCount: parseInt(e.target.value),
 									})
 								}
+								disabled={isLoading}
 							/>
 						</div>
 					</div>
@@ -403,6 +426,7 @@ export const CreateQuizForm = ({
 									specificRequirement: e.target.value,
 								})
 							}
+							disabled={isLoading}
 						/>
 					</div>
 				</div>
@@ -417,8 +441,8 @@ export const CreateQuizForm = ({
 						{isLoading ? (
 							<>
 								<Loader2 className="w-5 h-5 mr-2 animate-spin" />
-								{/* เปลี่ยนข้อความตามสถานะ */}
-								{selectedFile && !formData.documentId
+								{/* ข้อความ dynamic ตามสถานะ */}
+								{sourceType === "PDF" && !formData.documentId && selectedFile
 									? "Uploading & Generating..."
 									: "Generating Quiz..."}
 							</>
