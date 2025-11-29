@@ -16,7 +16,10 @@ import { nanoid } from "nanoid";
 import { Loader2 } from "lucide-react";
 
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
-import { getChatMessages, getChatsByDocument } from "@/lib/actions/chat.action";
+import {
+	getChatMessages,
+	getChatsByDocument,
+} from "@/lib/actions/chat.actions";
 import type { PdfMainViewerHandle } from "@/components/PdfMainViewer";
 
 // Import new components

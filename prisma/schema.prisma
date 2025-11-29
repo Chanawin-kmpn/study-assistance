@@ -25,6 +25,12 @@ enum QuizDifficulty {
   HARD
 }
 
+enum AttemptStatus {
+  STARTED   // กำลังทำ
+  COMPLETED // ส่งแล้ว
+  TIMEOUT   // หมดเวลา (เผื่ออนาคต)
+}
+
 model User {
   id        String   @id // ใช้ User ID จาก Clerk (เช่น user_2bN...)
   email     String   @unique
@@ -137,15 +143,28 @@ model QuizAttempt {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  score       Int
-  total       Int
+  score       Int @default(0)
+  total       Int @default(0)
+  percentage  Float   @default(0)
+
+  status AttemptStatus @default(STARTED)
+  currentQuestionIndex Int @default(0)
+
   startedAt   DateTime  @default(now())
   completedAt DateTime?
+  duration Int @default(0)
+
+  aiSummary   String?   @db.Text
+
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt
 
   answers QuizAnswer[]
 
   @@index([quizId])
   @@index([userId])
+  @@index([userId, quizId, createdAt]) 
+  @@index([userId, quizId, score]) 
 }
 
 model QuizAnswer {
