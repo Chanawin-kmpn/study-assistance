@@ -39,32 +39,33 @@ const requestSchema = z.object({
 	specificRequirement: z.string().optional(),
 });
 
-export async function GET(res: Response, req: Request) {
+export async function GET() {
 	try {
 		const user = await getCurrentUser();
 		if (!user) {
 			return new NextResponse("Unauthorized", { status: 401 });
 		}
-		const { quizId } = await req.json();
 		const userId = user.id;
-		const quiz = await prisma.quiz.findUnique({
+
+		const quizzes = await prisma.quiz.findMany({
 			where: {
-				id: quizId,
-				userId: userId, // Security check: ต้องเป็นเจ้าของ quiz (หรือลบออกถ้าให้คนอื่นเล่นได้)
+				userId,
 			},
 			include: {
-				_count: {
-					select: { questions: true },
-				},
-				attempts: {
-					where: { userId: userId },
-					orderBy: { createdAt: "desc" },
-				},
+				attempts: true, // ดึงประวัติการทำมาด้วยเพื่อใช้คำนวณ Best Score
+			},
+			orderBy: {
+				createdAt: "desc",
 			},
 		});
 
-		return quiz;
-	} catch (error) {}
+		// ✅ ต้องมี return ข้อมูลกลับไปเสมอ
+		return NextResponse.json(quizzes);
+	} catch (error) {
+		console.error("[QUIZ_GET]", error);
+		// ❌ ต้องมี return ใน catch ด้วย
+		return new NextResponse("Internal Error", { status: 500 });
+	}
 }
 
 export async function POST(req: Request) {

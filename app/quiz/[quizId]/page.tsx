@@ -14,6 +14,7 @@ import {
 	Play,
 	Trophy,
 	BookOpen,
+	Target,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -39,7 +40,6 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 			_count: {
 				select: { questions: true },
 			},
-			// ดึงมาเยอะหน่อยเผื่อ user อยาก sort ดูคะแนนสูงสุด
 			attempts: {
 				where: { userId: userId },
 				orderBy: { createdAt: "desc" },
@@ -56,18 +56,30 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 		);
 	}
 
-	// 2. Calculate Stats
+	// 2. Calculate Stats (Logic ปรับปรุงใหม่)
 	const totalQuestions = quiz.questionCount || quiz._count.questions;
 	const attempts = quiz.attempts || [];
 	const attemptCount = attempts.length;
 
-	let bestScore = 0;
+	let bestAttempt = null;
+	let bestPercentage = 0;
+
 	if (attemptCount > 0) {
-		const maxScoreAttempt = attempts.reduce((prev, current) => {
-			return prev.score > current.score ? prev : current;
+		// หา Attempt ที่ percentage สูงที่สุด
+		bestAttempt = attempts.reduce((prev, current) => {
+			return (prev.percentage || 0) > (current.percentage || 0)
+				? prev
+				: current;
 		});
-		bestScore = Math.round(maxScoreAttempt.score);
+		bestPercentage = Math.round(bestAttempt.percentage);
 	}
+
+	// Helper: เลือกสีตามคะแนน
+	const getScoreColor = (p: number) => {
+		if (p >= 80) return "text-green-600 stroke-green-600";
+		if (p >= 50) return "text-yellow-600 stroke-yellow-600";
+		return "text-red-600 stroke-red-600";
+	};
 
 	const difficultyColor =
 		{
@@ -113,7 +125,7 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 			{/* --- Stats Grid --- */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				{/* Left: Info */}
-				<Card className="border-slate-200 shadow-sm">
+				<Card className="border-slate-200 shadow-sm h-full">
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2 text-slate-700">
 							<Brain className="w-5 h-5 text-indigo-500" />
@@ -141,47 +153,92 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 					</CardContent>
 				</Card>
 
-				{/* Right: Performance */}
-				<Card className="border-slate-200 shadow-sm">
+				{/* Right: Performance (Improved UI) */}
+				<Card className="border-slate-200 shadow-sm h-full flex flex-col">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle className="flex items-center gap-2 text-slate-700">
 							<Trophy className="w-5 h-5 text-amber-500" />
-							Your Performance
+							Best Performance
 						</CardTitle>
 					</CardHeader>
-					<CardContent className="flex flex-col items-center justify-center h-[140px]">
+					<CardContent className="flex-1 flex items-center justify-center py-2">
 						{attemptCount > 0 ? (
-							<div className="text-center space-y-2">
-								<div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
-									{bestScore}%
+							<div className="flex items-center gap-8">
+								{/* Circular Progress */}
+								<div className="relative w-24 h-24">
+									<svg className="w-full h-full transform -rotate-90">
+										<circle
+											cx="48"
+											cy="48"
+											r="40"
+											stroke="currentColor"
+											strokeWidth="8"
+											fill="transparent"
+											className="text-slate-100"
+										/>
+										<circle
+											cx="48"
+											cy="48"
+											r="40"
+											stroke="currentColor"
+											strokeWidth="8"
+											fill="transparent"
+											strokeDasharray={251.2}
+											strokeDashoffset={251.2 - (251.2 * bestPercentage) / 100}
+											className={`transition-all duration-1000 ease-out ${getScoreColor(
+												bestPercentage
+											)}`}
+											strokeLinecap="round"
+										/>
+									</svg>
+									<div className="absolute inset-0 flex items-center justify-center flex-col">
+										<span
+											className={`text-xl font-bold ${getScoreColor(
+												bestPercentage
+											).replace("stroke", "text")}`}
+										>
+											{bestPercentage}%
+										</span>
+									</div>
 								</div>
-								<p className="text-sm text-slate-500">
-									Best Score from{" "}
-									<span className="font-medium text-slate-700">
-										{attemptCount}
-									</span>{" "}
-									attempts
-								</p>
+
+								{/* Text Detail */}
+								<div className="flex flex-col space-y-1">
+									<div className="text-sm text-slate-500 font-medium uppercase tracking-wide">
+										Best Score
+									</div>
+									<div className="text-2xl font-bold text-slate-800">
+										{bestAttempt?.score}{" "}
+										<span className="text-slate-400 text-lg">
+											/ {bestAttempt?.total}
+										</span>
+									</div>
+									<div className="text-xs text-slate-400 flex items-center gap-1">
+										<Target className="w-3 h-3" />
+										{attemptCount} Total Attempts
+									</div>
+								</div>
 							</div>
 						) : (
-							<div className="text-center space-y-2 opacity-60">
-								<div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-2">
-									<History className="w-6 h-6 text-slate-400" />
+							<div className="text-center space-y-3 opacity-60 py-4">
+								<div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
+									<History className="w-7 h-7 text-slate-400" />
 								</div>
-								<p className="text-sm text-slate-500">
-									You haven&apos;t taken this quiz yet.
-								</p>
-								<p className="text-xs text-slate-400">
-									Challenge yourself to get the best score!
-								</p>
+								<div>
+									<p className="text-sm font-medium text-slate-600">
+										No attempts yet
+									</p>
+									<p className="text-xs text-slate-400 mt-1">
+										Start the quiz to see your stats
+									</p>
+								</div>
 							</div>
 						)}
 					</CardContent>
 				</Card>
 			</div>
 
-			{/* --- Recent Attempts Section (New!) --- */}
-			{/* เราส่งข้อมูล attempts ไปให้ Client Component จัดการเรื่อง Sort/Display */}
+			{/* --- Recent Attempts Section --- */}
 			<div className="mt-8">
 				<AttemptsList attempts={attempts} quizId={quizId} />
 			</div>

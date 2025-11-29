@@ -1,4 +1,3 @@
-import React from "react";
 import { CreateQuizForm } from "@/components/quiz/CreateQuizForm";
 
 // Next.js 15: searchParams is a Promise
@@ -19,7 +18,7 @@ export default async function PdfUploadPage({
 			: undefined;
 
 	return (
-		<div className="max-w-5xl mx-auto py-10 px-6">
+		<>
 			<div className="mb-8">
 				<h1 className="text-2xl font-bold text-slate-800">
 					Create Quiz from PDF
@@ -30,6 +29,6 @@ export default async function PdfUploadPage({
 			</div>
 			{/* ส่งค่าไปให้ Form */}
 			<CreateQuizForm sourceType="PDF" defaultDocumentId={documentId} />
-		</div>
+		</>
 	);
 }

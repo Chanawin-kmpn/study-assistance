@@ -14,25 +14,31 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Trophy, ArrowRight, History } from "lucide-react";
+import {
+	CalendarDays,
+	Trophy,
+	ArrowRight,
+	History,
+	Clock,
+	Target,
+} from "lucide-react";
 import Link from "next/link";
+import { AttemptsListProps } from "@/types/types.global";
 
-type Attempt = {
-	id: string;
-	score: number;
-	createdAt: Date;
-};
-
-interface AttemptsListProps {
-	attempts: Attempt[];
-	quizId: string;
-}
+// Update Type ให้ตรงกับ Prisma Model ที่แก้ไป
 
 export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 	const router = useRouter();
 	const [sortType, setSortType] = useState<"latest" | "highest">("latest");
 
-	// ถ้าไม่มี Attempt เลย ให้โชว์ Empty State
+	// Helper: แปลงวินาทีเป็น นาที:วินาที
+	const formatDuration = (seconds: number) => {
+		if (!seconds) return "-";
+		const mins = Math.floor(seconds / 60);
+		const secs = seconds % 60;
+		return `${mins}m ${secs}s`;
+	};
+
 	if (!attempts || attempts.length === 0) {
 		return (
 			<div className="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-10 text-center animate-in fade-in zoom-in duration-500">
@@ -61,8 +67,10 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 	// Logic การ Sort
 	const sortedAttempts = [...attempts].sort((a, b) => {
 		if (sortType === "highest") {
-			// เรียงคะแนนมาก -> น้อย, ถ้าเท่ากันเอาเวลาล่าสุดขึ้นก่อน
-			if (b.score !== a.score) return b.score - a.score;
+			// เรียง % มาก -> น้อย
+			if (b.percentage !== a.percentage) return b.percentage - a.percentage;
+			// ถ้า % เท่ากัน เอาเวลาทำน้อยกว่าขึ้นก่อน (ใครเร็วกว่าชนะ)
+			if (b.duration !== a.duration) return a.duration - b.duration;
 			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 		} else {
 			// เรียงเวลาล่าสุด -> เก่าสุด
@@ -77,7 +85,6 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 					<History className="w-5 h-5" /> Recent History
 				</h3>
 
-				{/* Toggle Sort */}
 				<Tabs
 					defaultValue="latest"
 					value={sortType}
@@ -86,7 +93,7 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 				>
 					<TabsList className="grid w-full grid-cols-2">
 						<TabsTrigger value="latest">Latest</TabsTrigger>
-						<TabsTrigger value="highest">Highest</TabsTrigger>
+						<TabsTrigger value="highest">Best</TabsTrigger>
 					</TabsList>
 				</Tabs>
 			</div>
@@ -95,26 +102,23 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 				<Table>
 					<TableHeader className="bg-slate-50">
 						<TableRow>
-							<TableHead className="w-[100px]">Attempt</TableHead>
-							<TableHead>Date</TableHead>
-							<TableHead>Score</TableHead>
-							<TableHead className="text-right">Action</TableHead>
+							<TableHead className="pl-6">Date</TableHead>
+							<TableHead>Duration</TableHead>
+							<TableHead>Score (Raw)</TableHead>
+							<TableHead>Result</TableHead>
+							<TableHead className="text-right pr-6">Review</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{sortedAttempts.map((attempt, index) => (
 							<TableRow
 								key={attempt.id}
-								className="hover:bg-slate-50 cursor-pointer group transition-colors"
+								className="hover:bg-slate-50 cursor-pointer group transition-colors h-16"
 								onClick={() =>
 									router.push(`/quiz/${quizId}/result/${attempt.id}`)
 								}
 							>
-								<TableCell className="font-medium text-slate-600">
-									#{attempts.length - index}
-									{/* หมายเหตุ: index นี้อาจจะไม่ตรงเป๊ะถ้าวัดจาก Database จริง แต่ใช้แสดงผลคร่าวๆ ได้ */}
-								</TableCell>
-								<TableCell className="text-slate-600">
+								<TableCell className="pl-6 font-medium text-slate-600">
 									<div className="flex items-center gap-2">
 										<CalendarDays className="w-4 h-4 text-slate-400" />
 										{formatDistanceToNow(new Date(attempt.createdAt), {
@@ -122,32 +126,49 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 										})}
 									</div>
 								</TableCell>
+
+								{/* เพิ่ม Column Duration */}
+								<TableCell className="text-slate-600 text-sm">
+									<div className="flex items-center gap-2">
+										<Clock className="w-4 h-4 text-slate-400" />
+										{formatDuration(attempt.duration)}
+									</div>
+								</TableCell>
+
+								{/* เพิ่ม Column Raw Score */}
+								<TableCell className="text-slate-600 text-sm">
+									<div className="flex items-center gap-1">
+										<Target className="w-4 h-4 text-slate-400" />
+										{attempt.score} / {attempt.total}
+									</div>
+								</TableCell>
+
 								<TableCell>
 									<Badge
 										className={`
                                             ${
-																							attempt.score >= 80
+																							attempt.percentage >= 80
 																								? "bg-green-100 text-green-700 hover:bg-green-200"
-																								: attempt.score >= 50
+																								: attempt.percentage >= 50
 																								? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
 																								: "bg-red-100 text-red-700 hover:bg-red-200"
 																						}
-                                            border-0
+                                            border-0 px-3 py-1 text-xs
                                         `}
 									>
-										{Math.round(attempt.score)}%
+										{Math.round(attempt.percentage)}%
 									</Badge>
 									{sortType === "highest" && index === 0 && (
-										<Trophy className="w-4 h-4 text-amber-500 inline-ml ml-2" />
+										<Trophy className="w-4 h-4 text-amber-500 inline-block ml-2" />
 									)}
 								</TableCell>
-								<TableCell className="text-right">
+								<TableCell className="text-right pr-6">
 									<Button
 										variant="ghost"
-										size="icon"
-										className="opacity-0 group-hover:opacity-100 transition-opacity"
+										size="sm"
+										className="text-slate-400 group-hover:text-indigo-600 transition-colors"
 									>
-										<ArrowRight className="w-4 h-4 text-slate-400" />
+										Review <ArrowRight className="w-4 h-4 ml-1" />
 									</Button>
 								</TableCell>
 							</TableRow>
