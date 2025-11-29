@@ -39,6 +39,34 @@ const requestSchema = z.object({
 	specificRequirement: z.string().optional(),
 });
 
+export async function GET(res: Response, req: Request) {
+	try {
+		const user = await getCurrentUser();
+		if (!user) {
+			return new NextResponse("Unauthorized", { status: 401 });
+		}
+		const { quizId } = await req.json();
+		const userId = user.id;
+		const quiz = await prisma.quiz.findUnique({
+			where: {
+				id: quizId,
+				userId: userId, // Security check: ต้องเป็นเจ้าของ quiz (หรือลบออกถ้าให้คนอื่นเล่นได้)
+			},
+			include: {
+				_count: {
+					select: { questions: true },
+				},
+				attempts: {
+					where: { userId: userId },
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		});
+
+		return quiz;
+	} catch (error) {}
+}
+
 export async function POST(req: Request) {
 	try {
 		const user = await getCurrentUser();

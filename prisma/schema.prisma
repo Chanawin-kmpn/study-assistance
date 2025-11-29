@@ -141,6 +141,8 @@ model QuizAttempt {
   total       Int
   startedAt   DateTime  @default(now())
   completedAt DateTime?
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt
 
   answers QuizAnswer[]
 

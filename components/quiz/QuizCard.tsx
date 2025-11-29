@@ -12,6 +12,7 @@ import { PlayCircle, FileText, CheckCircle2, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Quiz, QuizAttempt } from "@/generated/prisma/client";
 import { QuizDifficulty } from "@/generated/prisma/enums";
+import Link from "next/link";
 
 type QuizWithAttempts = Quiz & { attempts: QuizAttempt[] };
 
@@ -52,7 +53,7 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 			</CardHeader>
 
 			<CardContent className="flex-1 pb-2">
-				<p className="text-sm text-slate-500 line-clamp-2 min-h-[40px]">
+				<p className="text-sm text-slate-500 line-clamp-2 min-h-10">
 					{quiz.description || "No description provided."}
 				</p>
 				<div className="mt-4 text-[10px] text-slate-400 flex items-center gap-1">
@@ -62,13 +63,13 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 			</CardContent>
 
 			<CardFooter className="pt-2 bg-slate-50/50 border-t border-slate-100">
-				<Button
+				<Link
+					href={`/quiz/${quiz.id}`}
 					className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-					size="sm"
 				>
 					<PlayCircle className="w-4 h-4" />
 					{isCompleted ? "Retake Quiz" : "Start Quiz"}
-				</Button>
+				</Link>
 			</CardFooter>
 		</Card>
 	);
