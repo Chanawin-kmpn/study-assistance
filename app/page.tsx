@@ -25,8 +25,8 @@ const features = [
 		description:
 			"อัปโหลดไฟล์ PDF, Slides หรือ E-Book ระบบจะสแกนเนื้อหาทั้งหมดเพื่อสร้างเป็นคลังความรู้ส่วนตัว",
 		icon: <Upload />,
-		color: "indigo",
-		spotlight: "rgba(163, 179, 255, 0.2)",
+		color: "red",
+		spotlight: "rgba(231, 0, 11, 0.2)",
 	},
 	{
 		title: "From The Web",
@@ -34,7 +34,7 @@ const features = [
 			"วางลิงก์บทความที่น่าสนใจ ระบบจะดึงเนื้อหา (Scraping) มาวิเคราะห์และสร้างแบบทดสอบให้อัตโนมัติ",
 		icon: <LinkIcon />,
 		color: "yellow",
-		spotlight: "rgba(255, 210, 48, 0.2)",
+		spotlight: "rgba(21, 93, 252, 0.2)",
 	},
 	{
 		title: "From Your Text",
@@ -245,8 +245,8 @@ export default function HomePage() {
 											className={cn(
 												"text-xl font-bold font-prompt text-primary mb-3",
 												{
-													"text-indigo-600": feature.color === "indigo",
-													"text-yellow-600": feature.color === "yellow",
+													"text-red-600": feature.color === "red",
+													"text-blue-600": feature.color === "blue",
 													"text-emerald-600": feature.color === "emerald",
 												}
 											)}
@@ -258,10 +258,8 @@ export default function HomePage() {
 												"w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors shadow-inner",
 
 												{
-													"bg-indigo-50 text-indigo-600":
-														feature.color === "indigo",
-													"bg-yellow-50 text-yellow-600":
-														feature.color === "yellow",
+													"bg-red-50 text-red-600": feature.color === "red",
+													"bg-blue-50 text-blue-600": feature.color === "blue",
 													"bg-emerald-50 text-emerald-600":
 														feature.color === "emerald",
 												}

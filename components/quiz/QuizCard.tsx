@@ -1,14 +1,16 @@
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Play, RotateCcw, Trophy, Clock, Target } from "lucide-react";
+import {
+	Trophy,
+	Clock,
+	FileText,
+	Link as LinkIcon,
+	Type,
+	Play,
+	ArrowRight,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { QuizDifficulty } from "@/generated/prisma/enums";
+import { QuizDifficulty } from "@/generated/prisma/enums"; // หรือ path enum ของคุณ
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { QuizCardProps } from "@/types/types.global";
@@ -25,152 +27,123 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 		bestScore = Math.round(maxAttempt.percentage || 0);
 	}
 
-	// Theme Colors based on Difficulty
+	// Helper: Source Icon
+	const getSourceIcon = () => {
+		switch (
+			quiz.sourceType // สมมติว่ามี field sourceType
+		) {
+			case "LINK":
+				return <LinkIcon className="w-3.5 h-3.5" />;
+			case "TEXT":
+				return <Type className="w-3.5 h-3.5" />;
+			default:
+				return <FileText className="w-3.5 h-3.5" />;
+		}
+	};
+
+	// Helper: Theme Color based on Difficulty
 	const themeColor = {
-		[QuizDifficulty.EASY]: {
-			bg: "bg-emerald-50",
-			text: "text-emerald-700",
-			badge: "bg-emerald-100 text-emerald-700 border-emerald-200",
-			icon: "text-emerald-600",
-			gradient: "from-emerald-500/10 to-emerald-500/5",
-			bar: "bg-emerald-500",
-		},
-		[QuizDifficulty.MEDIUM]: {
-			bg: "bg-amber-50",
-			text: "text-amber-700",
-			badge: "bg-amber-100 text-amber-700 border-amber-200",
-			icon: "text-amber-600",
-			gradient: "from-amber-500/10 to-amber-500/5",
-			bar: "bg-amber-500",
-		},
-		[QuizDifficulty.HARD]: {
-			bg: "bg-rose-50",
-			text: "text-rose-700",
-			badge: "bg-rose-100 text-rose-700 border-rose-200",
-			icon: "text-rose-600",
-			gradient: "from-rose-500/10 to-rose-500/5",
-			bar: "bg-rose-500",
-		},
+		[QuizDifficulty.EASY]: "text-emerald-600 bg-emerald-50 border-emerald-200",
+		[QuizDifficulty.MEDIUM]: "text-amber-600 bg-amber-50 border-amber-200",
+		[QuizDifficulty.HARD]: "text-rose-600 bg-rose-50 border-rose-200",
 	}[quiz.difficulty];
 
+	// Helper: Score Color
+	const scoreColor = isCompleted
+		? bestScore >= 80
+			? "text-emerald-600 bg-emerald-50 border-emerald-100"
+			: bestScore >= 50
+			? "text-amber-600 bg-amber-50 border-amber-100"
+			: "text-rose-600 bg-rose-50 border-rose-100"
+		: "";
+
 	return (
-		<Card className="group relative flex flex-col h-full border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-100 overflow-hidden rounded-2xl">
-			{/* Background Gradient Effect on Hover */}
-			<div
-				className={cn(
-					"absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
-					themeColor.gradient
-				)}
-			/>
-
-			{/* Top Section: Status & Difficulty */}
-			<div className="relative p-5 pb-0 flex justify-between items-start z-10">
-				<div
-					className={cn(
-						"w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm",
-						isCompleted
-							? "bg-indigo-100 text-indigo-600"
-							: "bg-white border border-slate-100 text-slate-400"
-					)}
-				>
-					{isCompleted ? (
-						<Trophy className="w-5 h-5" />
-					) : (
-						<Target className="w-5 h-5" />
-					)}
-				</div>
-
-				<Badge
-					variant="outline"
-					className={cn(
-						"font-bold tracking-wide px-2.5 py-1 rounded-lg",
-						themeColor.badge
-					)}
-				>
-					{quiz.difficulty}
-				</Badge>
-			</div>
-
-			{/* Middle Section: Content */}
-			<CardHeader className="relative pt-4 pb-2 z-10">
-				<h3 className="text-lg font-bold text-slate-800 leading-tight line-clamp-2 group-hover:text-indigo-700 transition-colors h-[3.5rem]">
-					{quiz.title}
-				</h3>
-			</CardHeader>
-
-			<CardContent className="relative flex-1 pb-4 z-10">
-				<div className="flex items-center gap-4 text-xs text-slate-500 font-medium mb-4">
-					<div className="flex items-center gap-1.5">
-						<div className="p-1 rounded bg-slate-100 text-slate-600">
-							<span className="font-bold">{quiz.questionCount}</span>
-						</div>
-						<span>Questions</span>
+		<Link href={`/quiz/${quiz.id}`} className="block h-full">
+			<Card className="group relative flex flex-col h-full border-slate-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-indigo-300 hover:-translate-y-1 overflow-hidden rounded-2xl cursor-pointer">
+				<CardContent className="p-5 flex flex-col h-full">
+					{/* 1. Quiz Title & Description */}
+					<div className="mb-4">
+						<h3 className="text-lg font-bold text-slate-800 leading-tight line-clamp-2 group-hover:text-indigo-700 transition-colors mb-1">
+							{quiz.title}
+						</h3>
+						<p className="text-sm text-slate-500 line-clamp-1">
+							{quiz.description || "No description available"}
+						</p>
 					</div>
-					<div className="w-1 h-1 rounded-full bg-slate-300" />
-					<div className="flex items-center gap-1.5">
-						<Clock className="w-3.5 h-3.5 text-slate-400" />
-						<span>
-							{formatDistanceToNow(new Date(quiz.createdAt), {
-								addSuffix: true,
-							})}
+
+					{/* 2. Questions Count */}
+					<div className="flex items-center gap-2 text-xs font-medium text-slate-400 mb-3">
+						<span className="bg-slate-100 px-2 py-1 rounded-md text-slate-600 border border-slate-200">
+							{quiz.questionCount} Questions
 						</span>
 					</div>
-				</div>
 
-				{/* Progress Bar for Best Score (Only if completed) */}
-				{isCompleted && (
-					<div className="w-full bg-slate-100 rounded-full h-1.5 mb-2 overflow-hidden">
-						<div
-							className={cn(
-								"h-full rounded-full transition-all duration-1000",
-								themeColor.bar
-							)}
-							style={{ width: `${bestScore}%` }}
-						/>
-					</div>
-				)}
-			</CardContent>
-
-			{/* Bottom Section: Action */}
-			<CardFooter className="relative pt-0 pb-5 px-5 mt-auto z-10 flex items-center justify-between gap-3">
-				{isCompleted ? (
-					<div className="flex flex-col">
-						<span className="text-[10px] uppercase text-slate-400 font-bold tracking-wider">
-							Best Score
-						</span>
-						<span className={cn("text-lg font-black", themeColor.text)}>
-							{bestScore}%
-						</span>
-					</div>
-				) : (
-					<div className="flex flex-col">
-						<span className="text-[10px] uppercase text-slate-400 font-bold tracking-wider">
-							Status
-						</span>
-						<span className="text-sm font-bold text-slate-600">
-							Not Started
-						</span>
-					</div>
-				)}
-
-				<Link href={`/quiz/${quiz.id}`}>
-					<Button
-						className={cn(
-							"rounded-xl px-6 shadow-lg shadow-indigo-200/50 transition-all duration-300",
-							isCompleted
-								? "bg-white text-indigo-600 border-2 border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200"
-								: "bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105"
-						)}
-					>
+					{/* 3. Status Box (The Main Feature) */}
+					<div className="mb-5 flex-1 min-h-[100px]">
 						{isCompleted ? (
-							<RotateCcw className="w-4 h-4 mr-2" />
+							// UI for Completed
+							<div
+								className={cn(
+									"h-full w-full rounded-xl border flex flex-col items-center justify-center gap-1 p-4 transition-colors",
+									scoreColor
+								)}
+							>
+								<div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-80">
+									<Trophy className="w-3.5 h-3.5" /> Best Score
+								</div>
+								<span className="text-3xl font-black tracking-tight">
+									{bestScore}%
+								</span>
+								<div className="text-[10px] opacity-70 mt-1 font-medium">
+									Click to review or retake
+								</div>
+							</div>
 						) : (
-							<Play className="w-4 h-4 mr-2 fill-current" />
+							// UI for Not Started
+							<div className="h-full w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center gap-2 p-4 group-hover:bg-indigo-50/30 group-hover:border-indigo-200 transition-all">
+								<div className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+									<Play className="w-5 h-5 text-indigo-500 fill-current ml-0.5" />
+								</div>
+								<div className="text-xs font-semibold text-slate-500 group-hover:text-indigo-600">
+									Ready to Start?
+								</div>
+							</div>
 						)}
-						{isCompleted ? "Retake" : "Start"}
-					</Button>
-				</Link>
-			</CardFooter>
-		</Card>
+					</div>
+
+					{/* 4. Footer Row 1: Type & Difficulty */}
+					<div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+						{/* Type */}
+						<div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+							{getSourceIcon()}
+							<span className="uppercase">{quiz.sourceType || "PDF"}</span>
+						</div>
+
+						{/* Difficulty */}
+						<Badge
+							variant="outline"
+							className={cn(
+								"text-[10px] font-bold px-2 py-0.5 rounded-md uppercase",
+								themeColor
+							)}
+						>
+							{quiz.difficulty}
+						</Badge>
+					</div>
+
+					{/* 5. Footer Row 2: Created At */}
+					<div className="flex items-center gap-1.5 mt-3 text-[10px] text-slate-400 font-medium">
+						<Clock className="w-3 h-3" />
+						Created{" "}
+						{formatDistanceToNow(new Date(quiz.createdAt), { addSuffix: true })}
+					</div>
+				</CardContent>
+
+				{/* Hover Arrow Indicator (Optional Decoration) */}
+				<div className="absolute top-5 right-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+					<ArrowRight className="w-5 h-5 text-indigo-400" />
+				</div>
+			</Card>
+		</Link>
 	);
 };

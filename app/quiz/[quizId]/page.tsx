@@ -2,23 +2,20 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
 	Brain,
 	ChevronLeft,
 	Clock,
-	FileText,
 	History,
 	Play,
 	Trophy,
-	BookOpen,
 	Target,
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { AttemptsList } from "@/components/quiz/AttemptsList";
+import { QuizHeader } from "@/components/quiz/QuizHeader"; // ✅ Import มาใหม่
 
 interface QuizPageProps {
 	params: Promise<{ quizId: string }>;
@@ -56,7 +53,7 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 		);
 	}
 
-	// 2. Calculate Stats (Logic ปรับปรุงใหม่)
+	// 2. Calculate Stats
 	const totalQuestions = quiz.questionCount || quiz._count.questions;
 	const attempts = quiz.attempts || [];
 	const attemptCount = attempts.length;
@@ -65,7 +62,6 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 	let bestPercentage = 0;
 
 	if (attemptCount > 0) {
-		// หา Attempt ที่ percentage สูงที่สุด
 		bestAttempt = attempts.reduce((prev, current) => {
 			return (prev.percentage || 0) > (current.percentage || 0)
 				? prev
@@ -74,51 +70,16 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 		bestPercentage = Math.round(bestAttempt.percentage);
 	}
 
-	// Helper: เลือกสีตามคะแนน
 	const getScoreColor = (p: number) => {
 		if (p >= 80) return "text-green-600 stroke-green-600";
 		if (p >= 50) return "text-yellow-600 stroke-yellow-600";
 		return "text-red-600 stroke-red-600";
 	};
 
-	const difficultyColor =
-		{
-			EASY: "bg-green-100 text-green-700 border-green-200",
-			MEDIUM: "bg-yellow-100 text-yellow-700 border-yellow-200",
-			HARD: "bg-red-100 text-red-700 border-red-200",
-		}[quiz.difficulty] || "bg-slate-100 text-slate-700";
-
 	return (
 		<div className="flex flex-col h-full max-w-5xl mx-auto p-6 md:p-10 space-y-8 animate-in fade-in duration-500 pb-24">
-			{/* --- Header --- */}
-			<div className="flex flex-col space-y-4">
-				<div className="flex items-center justify-between">
-					<div className="space-y-1">
-						<div className="flex items-center gap-2 mb-2">
-							<Badge variant="outline" className="text-xs text-slate-500 gap-1">
-								{quiz.sourceType === "PDF" && <FileText className="w-3 h-3" />}
-								{quiz.sourceType === "LINK" && <BookOpen className="w-3 h-3" />}
-								{quiz.sourceType} Source
-							</Badge>
-							<span className="text-xs text-slate-400">
-								Created {format(new Date(quiz.createdAt), "PP")}
-							</span>
-						</div>
-						<h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-							{quiz.title}
-						</h1>
-					</div>
-					<Badge
-						className={`px-4 py-1 text-sm font-bold border ${difficultyColor}`}
-					>
-						{quiz.difficulty}
-					</Badge>
-				</div>
-
-				<p className="text-slate-600 text-lg leading-relaxed max-w-3xl">
-					{quiz.description || "No description provided."}
-				</p>
-			</div>
+			{/* ✅ ใช้ Component ใหม่แทนส่วน Header เดิม */}
+			<QuizHeader quiz={quiz} />
 
 			<Separator />
 
@@ -153,7 +114,7 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 					</CardContent>
 				</Card>
 
-				{/* Right: Performance (Improved UI) */}
+				{/* Right: Performance */}
 				<Card className="border-slate-200 shadow-sm h-full flex flex-col">
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
 						<CardTitle className="flex items-center gap-2 text-slate-700">

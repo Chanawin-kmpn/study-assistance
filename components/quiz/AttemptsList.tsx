@@ -166,7 +166,7 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-slate-400 group-hover:text-indigo-600 transition-colors"
+										className="text-slate-400 group-hover:text-indigo-600 hover:text-indigo-600 transition-colors"
 									>
 										Review <ArrowRight className="w-4 h-4 ml-1" />
 									</Button>

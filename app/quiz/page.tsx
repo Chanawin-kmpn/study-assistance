@@ -92,11 +92,11 @@ export default function QuizLibraryPage() {
 							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								{/* Card 1: PDF */}
 								<Link href="/quiz/create/pdf-upload" className="group">
-									<div className="bg-white h-full rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary/30 hover:shadow-lg hover:bg-indigo-50/30 transition-all p-6 flex flex-col items-center text-center cursor-pointer">
+									<div className="bg-white h-full rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary/30 hover:shadow-lg hover:bg-red-50/30 transition-all p-6 flex flex-col items-center text-center cursor-pointer">
 										<div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
 											<FileText className="w-6 h-6 text-red-500" />
 										</div>
-										<h3 className="font-bold text-slate-700 group-hover:text-primary">
+										<h3 className="font-bold text-slate-700 group-hover:text-red-600">
 											From PDF
 										</h3>
 										<p className="text-xs text-slate-400 mt-1">
