@@ -58,7 +58,12 @@ export default function RootLayout({
 				>
 					<Toaster richColors closeButton />
 					<MainSidebar />
-					<main className="flex-1 overflow-auto relative">{children}</main>
+					<main
+						id="main-scroll-container"
+						className="flex-1 overflow-auto relative"
+					>
+						{children}
+					</main>
 				</body>
 			</html>
 		</ClerkProvider>

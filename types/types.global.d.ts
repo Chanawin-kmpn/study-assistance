@@ -1,5 +1,9 @@
 import { Quiz, QuizAttempt } from "@/generated/prisma/client";
 
+interface SectionProps {
+	scrollerId?: string; // รับ ID เป็น string (optional)
+}
+
 type Attempt = {
 	id: string;
 	score: number; // คะแนนดิบ (เช่น 8)
