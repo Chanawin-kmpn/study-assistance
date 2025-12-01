@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +12,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import {
-	ChevronLeft,
-	ChevronRight,
-	Clock,
-	Save,
-	Loader2,
-	AlertCircle,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { submitQuiz } from "@/lib/actions/quiz.actions";
@@ -129,7 +122,6 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 	const currentQuestion = quiz.questions[currentQuestionIndex];
 	const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
 	const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1;
-	const hasAnsweredCurrent = !!answers[currentQuestion.id];
 
 	return (
 		<div className="flex flex-col h-[calc(100vh-80px)] max-w-3xl mx-auto p-4 md:p-6">
