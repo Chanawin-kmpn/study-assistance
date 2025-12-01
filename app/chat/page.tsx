@@ -1,15 +1,10 @@
 "use client";
 
-import React, {
-	useState,
-	useRef,
-	ChangeEvent,
-	useEffect,
-	useCallback,
-} from "react";
+import React, { useState, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ เพิ่ม useQueryClient
 import { uploadDocument } from "@/lib/actions/actions";
 import { Upload, Loader2, FileText, Search, Trash2, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -19,13 +14,12 @@ import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
 import { toast } from "sonner";
+import { DocumentItem } from "@/types/types.global";
 
-type DocumentItem = {
-	id: string;
-	name: string;
-	url: string;
-	createdAt: string;
-	pageCount?: number | null;
+// Fetcher Function
+const fetchDocuments = async () => {
+	const response = await axios.get<DocumentItem[]>("/api/documents");
+	return response.data;
 };
 
 export default function DefaultChatPage() {
@@ -33,12 +27,14 @@ export default function DefaultChatPage() {
 	const { isLoaded, isSignedIn } = useUser();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
+	// ✅ เรียกใช้ QueryClient เพื่อสั่ง refresh ข้อมูล
+	const queryClient = useQueryClient();
+
 	// --- State ---
-	const [documents, setDocuments] = useState<DocumentItem[]>([]);
+	// ลบ documents state และ isLoadingDocs state ออก ใช้จาก useQuery แทน
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isUploading, setIsUploading] = useState(false);
 	const [dragActive, setDragActive] = useState(false);
-	const [isLoadingDocs, setIsLoadingDocs] = useState(true);
 
 	// State สำหรับ tracking การลบ
 	const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
@@ -54,31 +50,16 @@ export default function DefaultChatPage() {
 		documentName: null,
 	});
 
-	const fetchDocuments = useCallback(async () => {
-		if (!isSignedIn) return;
+	// ✅ 1. Use Query for fetching documents
+	const { data: documents, isLoading: isLoadingDocs } = useQuery({
+		queryKey: ["documents"], // Key นี้สำคัญ
+		queryFn: fetchDocuments,
+		enabled: !!isSignedIn,
+		staleTime: 1000 * 60 * 5, // Cache 5 นาที
+	});
 
-		try {
-			setIsLoadingDocs(true);
-
-			const response = await axios.get<DocumentItem[]>("/api/documents");
-			setDocuments(response.data);
-		} catch (err) {
-			console.error("Failed to fetch documents", err);
-		} finally {
-			setIsLoadingDocs(false);
-		}
-	}, [isSignedIn]);
-
-	useEffect(() => {
-		if (isLoaded && isSignedIn) {
-			fetchDocuments();
-		} else if (isLoaded && !isSignedIn) {
-			setIsLoadingDocs(false);
-		}
-	}, [isLoaded, isSignedIn, fetchDocuments]);
-
-	// --- Filter Logic ---
-	const filteredDocuments = documents.filter((doc) =>
+	const docList = documents || [];
+	const filteredDocuments = docList.filter((doc) =>
 		doc.name.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
@@ -93,11 +74,13 @@ export default function DefaultChatPage() {
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
-			// หมายเหตุ: uploadDocument เป็น Server Action หรือฟังก์ชันแยก ไม่จำเป็นต้องเปลี่ยนเป็น axios ในหน้านี้
+
 			const result = await uploadDocument(formData);
 
 			if (result.documentId && result.success) {
-				await fetchDocuments();
+				// ✅ 2. เมื่อ Upload เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+				await queryClient.invalidateQueries({ queryKey: ["documents"] });
+
 				toast.success("Upload Complete!");
 			} else {
 				toast.error(result.message || "Upload failed");
@@ -114,7 +97,6 @@ export default function DefaultChatPage() {
 		if (e.target.files?.[0]) handleUploadProcess(e.target.files[0]);
 	};
 
-	// เปิด Dialog แทน confirm
 	const handleDeleteClick = (id: string, name: string) => {
 		setDeleteDialog({
 			open: true,
@@ -123,7 +105,7 @@ export default function DefaultChatPage() {
 		});
 	};
 
-	// --- Confirm Delete (Using Axios) ---
+	// --- Confirm Delete ---
 	const handleConfirmDelete = async () => {
 		if (!deleteDialog.documentId) return;
 
@@ -133,9 +115,10 @@ export default function DefaultChatPage() {
 		try {
 			await axios.delete(`/api/documents/${documentId}`);
 
-			setDocuments((prev) => prev.filter((d) => d.id !== documentId));
-			toast.success("Document deleted successfully");
+			// ✅ 3. เมื่อ Delete เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+			await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
+			toast.success("Document deleted successfully");
 			setDeleteDialog({ open: false, documentId: null, documentName: null });
 		} catch (err) {
 			console.error("Failed to delete", err);
@@ -145,7 +128,6 @@ export default function DefaultChatPage() {
 		}
 	};
 
-	// --- Render Loading State ---
 	if (!isLoaded) {
 		return (
 			<div className="h-full flex items-center justify-center bg-slate-50">
@@ -169,7 +151,6 @@ export default function DefaultChatPage() {
 			<div className="flex-1 flex flex-col items-center p-6 pb-20 max-w-6xl mx-auto w-full">
 				{isSignedIn ? (
 					<>
-						{/* 1. Upload Area */}
 						<div
 							className={`w-full max-w-2xl bg-white rounded-3xl shadow-lg border-2 transition-all duration-300 cursor-pointer p-8 text-center group mb-12
                         ${
@@ -221,7 +202,7 @@ export default function DefaultChatPage() {
 
 									<Button
 										variant="outline"
-										className="border-primary text-primary hover:bg-primary hover:text-white rounded-full px-6 h-9 text-xs"
+										className="border-primary text-primary hover:bg-primary/90 hover:text-white rounded-full px-6 h-9 text-xs"
 									>
 										Browse File
 									</Button>
@@ -258,7 +239,7 @@ export default function DefaultChatPage() {
 
 							{isLoadingDocs ? (
 								<div className="flex justify-center py-12">
-									<Loader2 className="w-8 h-8 text-slate-300 animate-spin" />
+									<Loader2 className="w-8 h-8 text-primary animate-spin" />
 								</div>
 							) : filteredDocuments.length > 0 ? (
 								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -289,7 +270,7 @@ export default function DefaultChatPage() {
 
 												<CardContent className="p-4">
 													<div className="flex justify-between items-start mb-3">
-														<div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+														<div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary/90 group-hover:text-white transition-colors">
 															<FileText className="w-5 h-5" />
 														</div>
 
@@ -354,11 +335,9 @@ export default function DefaultChatPage() {
 				)}
 			</div>
 
-			{/* Confirm Dialog พร้อม Loading State */}
 			<ConfirmDialog
 				open={deleteDialog.open}
 				onOpenChange={(open) => {
-					// ป้องกันการปิด dialog ขณะกำลังลบ
 					if (!isDeletingId) {
 						setDeleteDialog({ open, documentId: null, documentName: null });
 					}

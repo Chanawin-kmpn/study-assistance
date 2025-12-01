@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import MainSidebar from "@/components/MainSidebar";
 import { Toaster } from "sonner";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 const prompt = Prompt({
 	weight: ["400", "500", "600", "700"],
@@ -62,7 +63,7 @@ export default function RootLayout({
 						id="main-scroll-container"
 						className="flex-1 overflow-auto relative"
 					>
-						{children}
+						<QueryProvider>{children}</QueryProvider>
 					</main>
 				</body>
 			</html>
