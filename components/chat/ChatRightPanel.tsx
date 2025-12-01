@@ -14,8 +14,7 @@ import {
 import { BrainCircuit, PlusCircle, History, MessageSquare } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { UIMessage } from "ai";
-
-type ChatSession = { id: string; title: string; createdAt: Date };
+import { ChatSession } from "@/types/types.global";
 
 type ChatRightPanelProps = {
 	chatId: string;

@@ -27,9 +27,7 @@ import type { PdfMainViewerHandle } from "@/components/PdfMainViewer";
 import { ChatLeftSidebar } from "@/components/chat/ChatLeftSidebar";
 import { ChatPdfViewer } from "@/components/chat/ChatPdfViewer";
 import { ChatRightPanel } from "@/components/chat/ChatRightPanel";
-
-type DocumentItem = { id: string; name: string; url: string };
-type ChatSession = { id: string; title: string; createdAt: Date };
+import { ChatSession, DocumentItem } from "@/types/types.global";
 
 const ChatPage = () => {
 	const router = useRouter();

@@ -23,3 +23,13 @@ type QuizWithAttempts = Quiz & { attempts: QuizAttempt[] };
 interface QuizCardProps {
 	quiz: QuizWithAttempts;
 }
+
+type DocumentItem = {
+	id: string;
+	name: string;
+	url: string;
+	createdAt: string;
+	pageCount?: number | null;
+};
+
+type ChatSession = { id: string; title: string; createdAt: Date };
