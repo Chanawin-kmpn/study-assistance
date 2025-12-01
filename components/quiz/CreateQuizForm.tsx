@@ -174,7 +174,7 @@ export const CreateQuizForm = ({
 		setFormData((prev) => ({ ...prev, documentId: "", title: "" }));
 		if (fileInputRef.current) fileInputRef.current.value = "";
 		// ล้าง URL params ถ้ามี
-		router.replace("/quiz/create?type=PDF");
+		router.replace("/quiz/create/pdf-upload");
 	};
 
 	// --- Render Source Inputs (เหมือนเดิม) ---

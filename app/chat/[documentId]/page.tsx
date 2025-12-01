@@ -14,6 +14,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, UIMessage } from "ai";
 import { nanoid } from "nanoid";
 import { Loader2 } from "lucide-react";
+import axios from "axios"; // ✅ Import axios
 
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import {
@@ -114,7 +115,10 @@ const ChatPage = () => {
 
 		try {
 			const [docRes, historyData] = await Promise.all([
-				fetch("/api/documents").then((res) => (res.ok ? res.json() : [])),
+				axios
+					.get<DocumentItem[]>("/api/documents")
+					.then((res) => res.data)
+					.catch(() => []),
 				getChatsByDocument(selectedDocumentId),
 			]);
 

@@ -29,13 +29,14 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import axios from "axios"; // ✅ Import axios
 
 interface QuizHeaderProps {
 	quiz: {
 		id: string;
 		title: string;
 		description: string | null;
-		sourceType: string; // หรือ Enum ถ้ามี
+		sourceType: string;
 		difficulty: "EASY" | "MEDIUM" | "HARD";
 		createdAt: Date;
 	};
@@ -53,14 +54,12 @@ export function QuizHeader({ quiz }: QuizHeaderProps) {
 			HARD: "bg-red-100 text-red-700 border-red-200",
 		}[quiz.difficulty] || "bg-slate-100 text-slate-700";
 
+	// ✅ ใช้ axios.delete
 	const handleDeleteQuiz = async () => {
 		setIsDeleting(true);
 		try {
-			const res = await fetch(`/api/quiz/${quiz.id}`, {
-				method: "DELETE",
-			});
-
-			if (!res.ok) throw new Error("Failed to delete");
+			// ไม่ต้องเช็ค res.ok เพราะ axios จะ throw error เองถ้าลบไม่สำเร็จ
+			await axios.delete(`/api/quiz/${quiz.id}`);
 
 			toast.success("Quiz deleted successfully");
 			router.push("/quiz");

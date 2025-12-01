@@ -27,7 +27,6 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 
 	if (!user) redirect("/");
 
-	// 1. Fetch Attempt พร้อม Answers
 	const attempt = await prisma.quizAttempt.findUnique({
 		where: { id: attemptId },
 		include: {
@@ -36,13 +35,11 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 		},
 	});
 
-	// 2. Fetch Quiz Master Data (คำถาม + เฉลย)
 	const quiz = await prisma.quiz.findUnique({
 		where: { id: quizId },
 		include: {
 			questions: {
 				include: { choices: true },
-				// orderBy: { order: "asc" }, // ใส่กลับมาถ้าแก้ schema แล้ว หรือลบออกถ้ายังไม่ได้แก้
 			},
 		},
 	});

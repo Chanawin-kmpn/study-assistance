@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
+import axios from "axios"; // ✅ Import axios
 import {
 	Loader2,
 	Search,
@@ -20,7 +21,6 @@ import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import { QuizCard } from "@/components/quiz/QuizCard";
 import Link from "next/link";
 import { QuizWithAttempts } from "@/types/types.global";
-import { cn } from "@/lib/utils";
 
 export default function QuizLibraryPage() {
 	const { isLoaded, isSignedIn } = useUser();
@@ -30,15 +30,13 @@ export default function QuizLibraryPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
 
-	// --- Fetch Quizzes ---
 	const fetchQuizzes = useCallback(async () => {
 		if (!isSignedIn) return;
 		try {
 			setIsLoading(true);
-			const res = await fetch("/api/quiz");
-			if (!res.ok) throw new Error("Failed to fetch");
-			const data = await res.json();
-			setQuizzes(data);
+
+			const res = await axios.get<QuizWithAttempts[]>("/api/quiz");
+			setQuizzes(res.data);
 		} catch (err) {
 			console.error("Failed to fetch quizzes", err);
 		} finally {
@@ -54,7 +52,6 @@ export default function QuizLibraryPage() {
 		}
 	}, [isLoaded, isSignedIn, fetchQuizzes]);
 
-	// --- Filter Logic ---
 	const filteredQuizzes = quizzes.filter((quiz) =>
 		quiz.title.toLowerCase().includes(searchQuery.toLowerCase())
 	);

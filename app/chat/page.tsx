@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import axios from "axios"; // ✅ Import axios
 import { uploadDocument } from "@/lib/actions/actions";
 import { Upload, Loader2, FileText, Search, Trash2, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -39,10 +40,10 @@ export default function DefaultChatPage() {
 	const [dragActive, setDragActive] = useState(false);
 	const [isLoadingDocs, setIsLoadingDocs] = useState(true);
 
-	// ✅ State สำหรับ tracking การลบ
+	// State สำหรับ tracking การลบ
 	const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
 
-	// ✅ Dialog State
+	// Dialog State
 	const [deleteDialog, setDeleteDialog] = useState<{
 		open: boolean;
 		documentId: string | null;
@@ -53,16 +54,14 @@ export default function DefaultChatPage() {
 		documentName: null,
 	});
 
-	// --- Fetch Documents ---
 	const fetchDocuments = useCallback(async () => {
 		if (!isSignedIn) return;
 
 		try {
 			setIsLoadingDocs(true);
-			const res = await fetch("/api/documents");
-			if (!res.ok) return;
-			const data: DocumentItem[] = await res.json();
-			setDocuments(data);
+
+			const response = await axios.get<DocumentItem[]>("/api/documents");
+			setDocuments(response.data);
 		} catch (err) {
 			console.error("Failed to fetch documents", err);
 		} finally {
@@ -94,7 +93,9 @@ export default function DefaultChatPage() {
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
+			// หมายเหตุ: uploadDocument เป็น Server Action หรือฟังก์ชันแยก ไม่จำเป็นต้องเปลี่ยนเป็น axios ในหน้านี้
 			const result = await uploadDocument(formData);
+
 			if (result.documentId && result.success) {
 				await fetchDocuments();
 				toast.success("Upload Complete!");
@@ -103,6 +104,7 @@ export default function DefaultChatPage() {
 			}
 		} catch (err) {
 			console.error("Failed to upload document", err);
+			toast.error("Failed to upload document");
 		} finally {
 			setIsUploading(false);
 		}
@@ -112,7 +114,7 @@ export default function DefaultChatPage() {
 		if (e.target.files?.[0]) handleUploadProcess(e.target.files[0]);
 	};
 
-	// ✅ เปิด Dialog แทน confirm
+	// เปิด Dialog แทน confirm
 	const handleDeleteClick = (id: string, name: string) => {
 		setDeleteDialog({
 			open: true,
@@ -121,34 +123,24 @@ export default function DefaultChatPage() {
 		});
 	};
 
-	// ✅ Confirm Delete พร้อม Loading State
+	// --- Confirm Delete (Using Axios) ---
 	const handleConfirmDelete = async () => {
 		if (!deleteDialog.documentId) return;
 
 		const documentId = deleteDialog.documentId;
-
-		// ✅ เริ่มแสดง loading
 		setIsDeletingId(documentId);
 
 		try {
-			const res = await fetch(`/api/documents/${documentId}`, {
-				method: "DELETE",
-			});
+			await axios.delete(`/api/documents/${documentId}`);
 
-			if (res.ok) {
-				setDocuments((prev) => prev.filter((d) => d.id !== documentId));
-				toast.success("Document deleted successfully");
+			setDocuments((prev) => prev.filter((d) => d.id !== documentId));
+			toast.success("Document deleted successfully");
 
-				// ปิด dialog หลังลบสำเร็จ
-				setDeleteDialog({ open: false, documentId: null, documentName: null });
-			} else {
-				toast.error("Failed to delete document");
-			}
+			setDeleteDialog({ open: false, documentId: null, documentName: null });
 		} catch (err) {
 			console.error("Failed to delete", err);
 			toast.error("An error occurred while deleting");
 		} finally {
-			// ✅ หยุด loading
 			setIsDeletingId(null);
 		}
 	};
@@ -283,7 +275,7 @@ export default function DefaultChatPage() {
 													!isDeleting && router.push(`/chat/${doc.id}`)
 												}
 											>
-												{/* ✅ Loading Overlay ขณะลบ */}
+												{/* Loading Overlay ขณะลบ */}
 												{isDeleting && (
 													<div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
 														<div className="flex flex-col items-center gap-2">
@@ -362,7 +354,7 @@ export default function DefaultChatPage() {
 				)}
 			</div>
 
-			{/* ✅ Confirm Dialog พร้อม Loading State */}
+			{/* Confirm Dialog พร้อม Loading State */}
 			<ConfirmDialog
 				open={deleteDialog.open}
 				onOpenChange={(open) => {
@@ -386,7 +378,6 @@ export default function DefaultChatPage() {
 				actionLabel={isDeletingId ? "Deleting..." : "Delete"}
 				onAction={handleConfirmDelete}
 				variant="destructive"
-				// ✅ Disable ปุ่มทั้งหมดขณะกำลังลบ
 				disabled={!!isDeletingId}
 			/>
 		</div>

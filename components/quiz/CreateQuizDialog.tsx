@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, FileText, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
+import axios from "axios"; // ✅ Import axios
 
 interface CreateQuizDialogProps {
 	open: boolean;
@@ -49,16 +49,14 @@ export function CreateQuizDialog({
 	const [questionCount, setQuestionCount] = useState<number>(10);
 	const [difficulty, setDifficulty] = useState<string>("EASY");
 
-	// 1. Fetch Documents เมื่อเปิด Dialog
+	// 1. Fetch Documents เมื่อเปิด Dialog (เปลี่ยนเป็น Axios)
 	useEffect(() => {
 		if (open) {
 			const fetchDocs = async () => {
 				setIsLoadingDocs(true);
 				try {
-					const res = await fetch("/api/documents"); // Endpoint เดียวกับหน้า Chat
-					if (!res.ok) throw new Error("Failed");
-					const data = await res.json();
-					setDocuments(data);
+					const res = await axios.get<DocumentItem[]>("/api/documents");
+					setDocuments(res.data);
 				} catch (error) {
 					console.error("Error fetching docs:", error);
 					toast.error("Failed to load documents.");
@@ -84,7 +82,7 @@ export function CreateQuizDialog({
 
 		setIsSubmitting(true);
 		try {
-			// เรียก API สร้าง Quiz (ต้องตรงกับ Backend ของคุณ)
+			// เรียก API สร้าง Quiz (ใช้ axios อยู่แล้ว)
 			const response = await axios.post("/api/quiz", {
 				documentId: selectedDocId,
 				questionCount: questionCount,
