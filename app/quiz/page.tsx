@@ -57,7 +57,7 @@ export default function QuizLibraryPage() {
 
 	return (
 		<div className="h-full flex flex-col bg-slate-50 relative overflow-y-auto font-prompt">
-			<header className="px-8 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 bg-slate-50 z-20 border-b border-slate-100/50 backdrop-blur-sm bg-slate-50/90">
+			<header className="px-8 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 bg-slate-50 z-20 border-b border-slate-100/50 backdrop-blur-sm ">
 				<div>
 					<h1 className="text-2xl font-bold text-primary">Quiz Library</h1>
 					<p className="text-slate-500 text-sm">

@@ -27,7 +27,6 @@ import type { UIMessage } from "ai";
 import { ChatMode, ChatSession } from "@/types/types.global";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { toast } from "sonner";
 
 type ChatRightPanelProps = {
 	chatId: string;
@@ -51,7 +50,6 @@ type ChatRightPanelProps = {
 
 export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 	chatId,
-	documentId,
 	messages,
 	input,
 	isThinking,
