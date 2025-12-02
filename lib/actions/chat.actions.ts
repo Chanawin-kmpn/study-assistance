@@ -26,7 +26,7 @@ export async function getChatMessages(chatId: string) {
 	if (!userId) throw new Error("Unauthenticated");
 
 	// เช็คว่าเป็นเจ้าของ chat ไหม
-	const chat = await prisma.chat.findUnique({
+	const chat = await prisma.chat.findFirst({
 		where: { id: chatId, userId },
 	});
 
@@ -44,7 +44,7 @@ export async function deleteChat(chatId: string, documentId: string) {
 	if (!userId) throw new Error("Unauthenticated");
 	console.log(documentId);
 
-	const chat = await prisma.chat.findUnique({
+	const chat = await prisma.chat.findFirst({
 		where: { id: chatId, userId },
 	});
 

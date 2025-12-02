@@ -142,7 +142,6 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 
 				{/* Toggle Switch */}
 				<Tabs
-					defaultValue="tutor"
 					value={chatMode}
 					onValueChange={(v) => setChatMode(v as ChatMode)}
 					className="w-full"
