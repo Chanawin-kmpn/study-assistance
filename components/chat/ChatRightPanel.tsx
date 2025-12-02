@@ -27,9 +27,7 @@ import type { UIMessage } from "ai";
 import { ChatMode, ChatSession } from "@/types/types.global";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import axios from "axios";
 import { toast } from "sonner";
-import { deleteChat } from "@/lib/actions/chat.actions";
 
 type ChatRightPanelProps = {
 	chatId: string;
@@ -40,6 +38,7 @@ type ChatRightPanelProps = {
 	error: Error | undefined;
 	chatHistory: ChatSession[];
 	chatMode: ChatMode;
+	onDeleteChat: (chatId: string) => Promise<void> | void;
 	setChatMode: (mode: ChatMode) => void;
 	isHistoryOpen: boolean;
 	onInputChange: (value: string) => void;
@@ -60,6 +59,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 	chatHistory,
 	chatMode,
 	setChatMode,
+	onDeleteChat,
 	isHistoryOpen,
 	onInputChange,
 	onSubmit,
@@ -89,19 +89,17 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 
 	// --- Confirm Delete ---
 	const handleConfirmDelete = async () => {
-		if (!deleteDialog.chatId) return;
+		const idToDelete = deleteDialog.chatId;
+		if (!idToDelete) return;
 
-		const documentId = deleteDialog.chatId;
-		setIsDeletingId(documentId);
+		setIsDeletingId(idToDelete); // ใช้ chat id จริง ๆ
 
 		try {
-			await deleteChat(chatId, documentId);
+			await onDeleteChat(idToDelete);
 
-			toast.success("Chat deleted successfully");
 			setDeleteDialog({ open: false, chatId: null, chatName: null });
 		} catch (err) {
 			console.error("Failed to delete", err);
-			toast.error("An error occurred while deleting");
 		} finally {
 			setIsDeletingId(null);
 		}

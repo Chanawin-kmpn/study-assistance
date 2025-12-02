@@ -17,6 +17,7 @@ import axios from "axios"; // ✅ Import axios
 
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import {
+	deleteChat,
 	getChatMessages,
 	getChatsByDocument,
 } from "@/lib/actions/chat.actions";
@@ -27,6 +28,7 @@ import { ChatLeftSidebar } from "@/components/chat/ChatLeftSidebar";
 import { ChatPdfViewer } from "@/components/chat/ChatPdfViewer";
 import { ChatRightPanel } from "@/components/chat/ChatRightPanel";
 import { ChatMode, ChatSession, DocumentItem } from "@/types/types.global";
+import { toast } from "sonner";
 
 const ChatPage = () => {
 	const router = useRouter();
@@ -172,6 +174,32 @@ const ChatPage = () => {
 		router.push(`/quiz/create/pdf-upload?documentId=${selectedDocumentId}`);
 	};
 
+	const handleDeleteChat = async (idToDelete: string) => {
+		if (!idToDelete) return;
+		const prev = chatHistory;
+		// optimistic update: เอาออกจาก state ทันที
+		setChatHistory((s) => s.filter((c) => c.id !== idToDelete));
+
+		// ถ้า chat ที่ถูกลบเป็น chat ปัจจุบัน ให้ reset session (UX)
+		if (chatId === idToDelete) {
+			const newId = nanoid();
+			setChatId(newId);
+			setMessages([]);
+		}
+
+		try {
+			await deleteChat(idToDelete, selectedDocumentId ?? "");
+			toast.success("Chat deleted");
+			// อยากจะ refresh server data ก็เรียก refreshHistory() ถ้าจำเป็น
+			// await refreshHistory();
+		} catch (err) {
+			console.error("delete failed, rollback", err);
+			// rollback
+			setChatHistory(prev);
+			toast.error("Failed to delete chat. Please try again.");
+		}
+	};
+
 	// Render
 	if (!isLoaded) {
 		return (
@@ -225,6 +253,7 @@ const ChatPage = () => {
 				chatHistory={chatHistory}
 				chatMode={chatMode}
 				setChatMode={setChatMode}
+				onDeleteChat={handleDeleteChat}
 				isHistoryOpen={isHistoryOpen}
 				onInputChange={setInput}
 				onSubmit={handleSubmit}
