@@ -1,5 +1,5 @@
-import { getCurrentUser } from "@/lib/helper/getCurrentUser";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
@@ -7,15 +7,13 @@ export async function DELETE(
 	{ params }: { params: Promise<{ quizId: string }> }
 ) {
 	try {
-		const user = await getCurrentUser();
-		if (!user) {
+		const { quizId } = await params;
+		const { userId } = await auth();
+		if (!userId) {
 			return new NextResponse("Unauthorized", { status: 401 });
 		}
 
-		const { quizId } = await params;
-		const userId = user.id;
-
-		const quiz = await prisma.quiz.findUnique({
+		const quiz = await prisma.quiz.findFirst({
 			where: { id: quizId, userId },
 		});
 
@@ -24,10 +22,10 @@ export async function DELETE(
 		}
 
 		await prisma.quiz.delete({
-			where: { id: quizId },
+			where: { id: quiz.id },
 		});
 
-		return NextResponse.json({ success: true, message: "Deleted" });
+		return new NextResponse(null, { status: 204 });
 	} catch (error) {
 		console.error("[QUIZ_DELETE]", error);
 		return new NextResponse("Internal Error", { status: 500 });

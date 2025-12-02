@@ -57,8 +57,9 @@ export function QuizHeader({ quiz }: QuizHeaderProps) {
 	// ✅ ใช้ axios.delete
 	const handleDeleteQuiz = async () => {
 		setIsDeleting(true);
+		console.log(quiz.id);
+
 		try {
-			// ไม่ต้องเช็ค res.ok เพราะ axios จะ throw error เองถ้าลบไม่สำเร็จ
 			await axios.delete(`/api/quiz/${quiz.id}`);
 
 			toast.success("Quiz deleted successfully");
