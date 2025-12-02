@@ -6,7 +6,6 @@ import React, {
 	useCallback,
 	FormEvent,
 	useRef,
-	useMemo,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -18,6 +17,7 @@ import axios from "axios"; // ✅ Import axios
 
 import { AuthRequiredCard } from "@/components/AuthRequireCard";
 import {
+	deleteChat,
 	getChatMessages,
 	getChatsByDocument,
 } from "@/lib/actions/chat.actions";
@@ -27,7 +27,8 @@ import type { PdfMainViewerHandle } from "@/components/PdfMainViewer";
 import { ChatLeftSidebar } from "@/components/chat/ChatLeftSidebar";
 import { ChatPdfViewer } from "@/components/chat/ChatPdfViewer";
 import { ChatRightPanel } from "@/components/chat/ChatRightPanel";
-import { ChatSession, DocumentItem } from "@/types/types.global";
+import { ChatMode, ChatSession, DocumentItem } from "@/types/types.global";
+import { toast } from "sonner";
 
 const ChatPage = () => {
 	const router = useRouter();
@@ -41,25 +42,19 @@ const ChatPage = () => {
 	const [documentInfo, setDocumentInfo] = useState<DocumentItem | null>(null);
 	const [chatId, setChatId] = useState<string>(() => nanoid());
 	const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+	const [chatMode, setChatMode] = useState<ChatMode>("summary");
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 	const [numPages, setNumPages] = useState<number>(0);
 	const [selectedPage, setSelectedPage] = useState<number>(1);
 	const [input, setInput] = useState("");
 	const [zoomScale, setZoomScale] = useState<number>(1.0);
 
-	// Setup Transport
-	const chatTransport = useMemo(
-		() =>
-			new DefaultChatTransport({
-				api: "/api/chat",
-				body: { documentId: selectedDocumentId, chatId },
-			}),
-		[selectedDocumentId, chatId]
-	);
-
 	// Setup useChat
 	const { messages, setMessages, status, sendMessage, error, stop } = useChat({
-		transport: chatTransport,
+		transport: new DefaultChatTransport({
+			api: "/api/chat",
+			body: { documentId: selectedDocumentId, chatId, mode: chatMode },
+		}),
 		id: chatId,
 		messages: [],
 		onFinish: () => {
@@ -157,7 +152,16 @@ const ChatPage = () => {
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!input.trim()) return;
-		sendMessage({ text: input });
+		sendMessage(
+			{ text: input },
+			{
+				body: {
+					documentId: selectedDocumentId,
+					chatId,
+					mode: chatMode,
+				},
+			}
+		);
 		setInput("");
 	};
 
@@ -168,6 +172,32 @@ const ChatPage = () => {
 
 	const handleCreateQuiz = () => {
 		router.push(`/quiz/create/pdf-upload?documentId=${selectedDocumentId}`);
+	};
+
+	const handleDeleteChat = async (idToDelete: string) => {
+		if (!idToDelete) return;
+		const prev = chatHistory;
+		// optimistic update: เอาออกจาก state ทันที
+		setChatHistory((s) => s.filter((c) => c.id !== idToDelete));
+
+		// ถ้า chat ที่ถูกลบเป็น chat ปัจจุบัน ให้ reset session (UX)
+		if (chatId === idToDelete) {
+			const newId = nanoid();
+			setChatId(newId);
+			setMessages([]);
+		}
+
+		try {
+			await deleteChat(idToDelete, selectedDocumentId ?? "");
+			toast.success("Chat deleted");
+			// อยากจะ refresh server data ก็เรียก refreshHistory() ถ้าจำเป็น
+			// await refreshHistory();
+		} catch (err) {
+			console.error("delete failed, rollback", err);
+			// rollback
+			setChatHistory(prev);
+			toast.error("Failed to delete chat. Please try again.");
+		}
 	};
 
 	// Render
@@ -215,11 +245,15 @@ const ChatPage = () => {
 
 			<ChatRightPanel
 				chatId={chatId}
+				documentId={selectedDocumentId}
 				messages={messages}
 				input={input}
 				isThinking={isThinking}
 				error={error}
 				chatHistory={chatHistory}
+				chatMode={chatMode}
+				setChatMode={setChatMode}
+				onDeleteChat={handleDeleteChat}
 				isHistoryOpen={isHistoryOpen}
 				onInputChange={setInput}
 				onSubmit={handleSubmit}

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
 import { embeddings, getVectorStore } from "@/lib/vector-store";
+import { ChatMode } from "@/types/types.global";
 import { google } from "@ai-sdk/google";
 import { auth } from "@clerk/nextjs/server";
 import { streamText, type UIMessage, convertToModelMessages } from "ai";
@@ -11,6 +12,7 @@ type ChatRequestBody = {
 	messages: UIMessage[];
 	documentId?: string;
 	chatId?: string;
+	mode?: ChatMode;
 };
 
 export async function POST(req: Request) {
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
 
 		const body = (await req.json()) as ChatRequestBody;
 
-		const { messages, documentId, chatId } = body;
+		const { messages, documentId, chatId, mode } = body;
 
 		if (!messages || messages.length === 0) {
 			return new Response("No messages provided", { status: 400 });
@@ -60,20 +62,44 @@ export async function POST(req: Request) {
 				.filter(Boolean)
 				.join("\n\n---\n\n") ?? "";
 
-		const systemPrompt = `
-You are a helpful study assistant for students.
-Your primary task is to answer questions based on the provided Context.
+		let systemPrompt = "";
 
-Rules:
-1. If the answer is explicitly in the Context, answer using ONLY that information.
-2. If the answer is NOT in the Context, or the Context is insufficient:
-   - First, state clearly: "This information is not found in the uploaded document, but based on my general knowledge..."
-   - Then, provide a helpful answer to the student using your own knowledge.
-3. Always be polite, encouraging, and concise.
+		if (mode === "summary") {
+			// 📝 Summary Mode Prompt: ตรงไปตรงมา กระชับ ช่วยสรุป
+			systemPrompt = `
+You are an expert academic summarizer.
+Your goal is to explain the content from the provided Context clearly, concisely, and accurately.
 
 Context:
 ${context}
+
+Instructions:
+1. Answer the user's question directly using the Context.
+2. Use bullet points for lists to make it easy to read.
+3. Highlight key terms or important definitions.
+4. Do NOT ask follow-up questions unless necessary for clarification.
+5. If the context doesn't contain the answer, state that clearly.
 `.trim();
+		} else {
+			// 🎓 Tutor Mode Prompt: โหมดเถียง สอนแบบ Socratic (ตามที่ Skooldio ต้องการ)
+			systemPrompt = `
+You are an AI Socratic Tutor and Debater designed to foster Critical Thinking.
+Your goal is NOT to give direct answers, but to guide the student to discover them through questioning and debate.
+
+Context:
+${context}
+
+Instructions:
+1. **Role:** Act as a challenging but supportive tutor.
+2. **Method:**
+   - If the user asks for a fact, don't just give it. Ask: "Based on the text, why do you think that is?"
+   - If the user states an opinion, play Devil's Advocate. Ask for evidence from the text.
+   - Encourage the user to connect concepts.
+3. **Tone:** Intellectual, encouraging, slightly provocative (to spark debate).
+4. **Grounding:** Always base your arguments on the provided Context.
+5. **Response:** Keep responses short and conversational to encourage back-and-forth interaction.
+`.trim();
+		}
 
 		const model = google("gemini-flash-latest");
 

@@ -8,11 +8,12 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export async function DELETE(req: Request, props: Props) {
+export async function DELETE(
+	req: Request,
+	{ params }: { params: Promise<{ id: string }> }
+) {
 	try {
-		// 1. Await params ก่อนดึงค่า
-		const params = await props.params;
-		const id = params.id; // ใช้ id นี้ตลอด function
+		const { id } = await params;
 
 		const { userId } = await auth();
 
