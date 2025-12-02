@@ -6,7 +6,6 @@ import React, {
 	useCallback,
 	FormEvent,
 	useRef,
-	useMemo,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -27,7 +26,7 @@ import type { PdfMainViewerHandle } from "@/components/PdfMainViewer";
 import { ChatLeftSidebar } from "@/components/chat/ChatLeftSidebar";
 import { ChatPdfViewer } from "@/components/chat/ChatPdfViewer";
 import { ChatRightPanel } from "@/components/chat/ChatRightPanel";
-import { ChatSession, DocumentItem } from "@/types/types.global";
+import { ChatMode, ChatSession, DocumentItem } from "@/types/types.global";
 
 const ChatPage = () => {
 	const router = useRouter();
@@ -41,25 +40,19 @@ const ChatPage = () => {
 	const [documentInfo, setDocumentInfo] = useState<DocumentItem | null>(null);
 	const [chatId, setChatId] = useState<string>(() => nanoid());
 	const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+	const [chatMode, setChatMode] = useState<ChatMode>("summary");
 	const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 	const [numPages, setNumPages] = useState<number>(0);
 	const [selectedPage, setSelectedPage] = useState<number>(1);
 	const [input, setInput] = useState("");
 	const [zoomScale, setZoomScale] = useState<number>(1.0);
 
-	// Setup Transport
-	const chatTransport = useMemo(
-		() =>
-			new DefaultChatTransport({
-				api: "/api/chat",
-				body: { documentId: selectedDocumentId, chatId },
-			}),
-		[selectedDocumentId, chatId]
-	);
-
 	// Setup useChat
 	const { messages, setMessages, status, sendMessage, error, stop } = useChat({
-		transport: chatTransport,
+		transport: new DefaultChatTransport({
+			api: "/api/chat",
+			body: { documentId: selectedDocumentId, chatId, mode: chatMode },
+		}),
 		id: chatId,
 		messages: [],
 		onFinish: () => {
@@ -157,7 +150,16 @@ const ChatPage = () => {
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!input.trim()) return;
-		sendMessage({ text: input });
+		sendMessage(
+			{ text: input },
+			{
+				body: {
+					documentId: selectedDocumentId,
+					chatId,
+					mode: chatMode,
+				},
+			}
+		);
 		setInput("");
 	};
 
@@ -215,11 +217,14 @@ const ChatPage = () => {
 
 			<ChatRightPanel
 				chatId={chatId}
+				documentId={selectedDocumentId}
 				messages={messages}
 				input={input}
 				isThinking={isThinking}
 				error={error}
 				chatHistory={chatHistory}
+				chatMode={chatMode}
+				setChatMode={setChatMode}
 				isHistoryOpen={isHistoryOpen}
 				onInputChange={setInput}
 				onSubmit={handleSubmit}

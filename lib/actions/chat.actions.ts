@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
+import { revalidatePath } from "next/cache";
 
 // ดึงรายการ Chat ทั้งหมดของ Document นี้
 export async function getChatsByDocument(documentId: string) {
@@ -35,4 +36,21 @@ export async function getChatMessages(chatId: string) {
 		where: { chatId },
 		orderBy: { createdAt: "asc" },
 	});
+}
+
+export async function deleteChat(chatId: string, documentId: string) {
+	const { userId } = await auth();
+	if (!userId) return [];
+
+	const chat = await prisma.chat.findUnique({
+		where: { id: chatId, userId },
+	});
+
+	if (!chat) return [];
+
+	await prisma.chat.delete({
+		where: { id: chatId },
+	});
+
+	revalidatePath(`/chat/${documentId}`);
 }
