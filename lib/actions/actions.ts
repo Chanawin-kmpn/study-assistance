@@ -1,12 +1,12 @@
 "use server";
 
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { PDFParse } from "pdf-parse";
 import { getVectorStore, embeddings } from "../vector-store";
 import { revalidatePath } from "next/cache";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 
 export async function uploadDocument(formData: FormData) {
 	try {
@@ -50,12 +50,18 @@ export async function uploadDocument(formData: FormData) {
 		// ----- อ่าน PDF แล้วแตกเป็น chunk -----
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
-		const parser = new PDFParse({ data: buffer });
-		const result = await parser.getText();
-		await parser.destroy();
+		const loadingTask = getDocument({ data: buffer });
+		const pdf = await loadingTask.promise;
+		const numPages = pdf.numPages;
+		let text = "";
 
-		const text = result.text;
-		const pageCount = result.pages.length;
+		for (let i = 1; i <= numPages; i++) {
+			const page = await pdf.getPage(i);
+			const content = await page.getTextContent();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const pageText = content.items.map((item: any) => item.str).join(" ");
+			text += pageText + "\n";
+		}
 
 		// ----- สร้าง Document ใน Prisma ก่อน เพื่อจะได้ documentId -----
 		const document = await prisma.document.create({
@@ -63,7 +69,7 @@ export async function uploadDocument(formData: FormData) {
 				name: file.name,
 				url: blob.url,
 				userId: userId,
-				pageCount,
+				pageCount: numPages,
 			},
 		});
 
