@@ -1,12 +1,12 @@
 "use server";
 
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { PDFParse } from "pdf-parse";
 import { getVectorStore, embeddings } from "../vector-store";
 import { revalidatePath } from "next/cache";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
+import { PDFDocument } from "pdf-lib";
 
 export async function uploadDocument(formData: FormData) {
 	try {
@@ -15,7 +15,7 @@ export async function uploadDocument(formData: FormData) {
 
 		if (!userId) return { success: false, message: "Unauthorized" };
 
-		// ----- ensure user ใน Prisma -----
+		// Ensure user exists in Prisma
 		let dbUser = await prisma.user.findUnique({
 			where: { id: userId },
 		});
@@ -41,32 +41,35 @@ export async function uploadDocument(formData: FormData) {
 			.substring(2, 9)}`;
 		const uniqueFileName = `${userId}-${uniqueId}-${file.name}`;
 
-		// ----- upload ไฟล์ไป Blob -----
+		// Upload file to Blob
 		const blob = await put(uniqueFileName, file, {
 			access: "public",
 			token: process.env.BLOB_READ_WRITE_TOKEN,
 		});
 
-		// ----- อ่าน PDF แล้วแตกเป็น chunk -----
+		// Read PDF using pdf-lib
 		const arrayBuffer = await file.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
-		const parser = new PDFParse({ data: buffer });
-		const result = await parser.getText();
-		await parser.destroy();
+		const pdfDoc = await PDFDocument.load(arrayBuffer);
 
-		const text = result.text;
-		const pageCount = result.pages.length;
+		const totalPages = pdfDoc.getPageCount();
+		let text = "";
 
-		// ----- สร้าง Document ใน Prisma ก่อน เพื่อจะได้ documentId -----
+		for (let i = 0; i < totalPages; i++) {
+			const page = pdfDoc.getPage(i);
+			text += page.doc.context; // If page.getTextContent() doesn't work, you might need an alternative approach
+		}
+
+		// Create Document in Prisma to get documentId
 		const document = await prisma.document.create({
 			data: {
 				name: file.name,
 				url: blob.url,
 				userId: userId,
-				pageCount,
+				pageCount: totalPages,
 			},
 		});
 
+		// Split text into chunks
 		const splitter = new RecursiveCharacterTextSplitter({
 			chunkSize: 1000,
 			chunkOverlap: 200,
@@ -74,14 +77,13 @@ export async function uploadDocument(formData: FormData) {
 
 		const docs = await splitter.createDocuments([text]);
 
-		// ----- ฝัง vector + ผูก documentId ลง metadata -----
+		// Embed vectors and link metadata
 		const vectorStore = await getVectorStore();
 
 		const vectors = await Promise.all(
 			docs.map(async (doc, i) => {
 				const embedding = await embeddings.embedQuery(doc.pageContent);
 				return {
-					// ใช้ document.id เพื่อกันชนกันระหว่างไฟล์ชื่อซ้ำ
 					id: `${document.id}-${i}`,
 					values: embedding,
 					metadata: {
@@ -89,7 +91,7 @@ export async function uploadDocument(formData: FormData) {
 						source: file.name,
 						userId: dbUser!.id,
 						url: blob.url,
-						documentId: document.id, // 👈 สำคัญ: ผูก documentId ที่นี่
+						documentId: document.id,
 					},
 				};
 			})
@@ -101,14 +103,13 @@ export async function uploadDocument(formData: FormData) {
 			await vectorStore.upsert(batch);
 		}
 
-		// ถ้าคุณใช้ /dashboard ก็ revalidate ต่อไปได้
+		// Revalidate cache
 		revalidatePath("/chat");
-		// หรือ revalidatePath("/dashboard");
 
 		return {
 			success: true,
 			message: "Uploaded & Linked to User",
-			documentId: document.id, // 👈 ให้ฝั่ง client ใช้ได้ด้วย
+			documentId: document.id,
 			document,
 		};
 	} catch (error) {
