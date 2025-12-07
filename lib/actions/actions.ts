@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
-import { PDFDocument } from "pdf-lib";
+import * as pdfjsLib from "pdfjs-dist";
 
 export async function uploadDocument(formData: FormData) {
 	try {
@@ -49,14 +49,16 @@ export async function uploadDocument(formData: FormData) {
 
 		// Read PDF using pdf-lib
 		const arrayBuffer = await file.arrayBuffer();
-		const pdfDoc = await PDFDocument.load(arrayBuffer);
-
-		const totalPages = pdfDoc.getPageCount();
+		const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+		const totalPages = pdf.numPages;
 		let text = "";
 
-		for (let i = 0; i < totalPages; i++) {
-			const page = pdfDoc.getPage(i);
-			text += page.doc.context; // If page.getTextContent() doesn't work, you might need an alternative approach
+		for (let i = 1; i <= totalPages; i++) {
+			const page = await pdf.getPage(i);
+			const content = await page.getTextContent();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const pageText = content.items.map((item: any) => item.str).join(" ");
+			text += pageText + "\n";
 		}
 
 		// Create Document in Prisma to get documentId
