@@ -77,6 +77,8 @@ export default function DefaultChatPage() {
 
 			const result = await uploadDocument(formData);
 
+			console.log(result);
+
 			if (result.documentId && result.success) {
 				// ✅ 2. เมื่อ Upload เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
 				await queryClient.invalidateQueries({ queryKey: ["documents"] });

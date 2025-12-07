@@ -42,7 +42,6 @@ export async function getChatMessages(chatId: string) {
 export async function deleteChat(chatId: string, documentId: string) {
 	const { userId } = await auth();
 	if (!userId) throw new Error("Unauthenticated");
-	console.log(documentId);
 
 	const chat = await prisma.chat.findFirst({
 		where: { id: chatId, userId },

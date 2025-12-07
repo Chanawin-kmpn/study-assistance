@@ -57,7 +57,6 @@ export function QuizHeader({ quiz }: QuizHeaderProps) {
 	// ✅ ใช้ axios.delete
 	const handleDeleteQuiz = async () => {
 		setIsDeleting(true);
-		console.log(quiz.id);
 
 		try {
 			await axios.delete(`/api/quiz/${quiz.id}`);

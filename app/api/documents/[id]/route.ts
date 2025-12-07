@@ -4,10 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { deleteVectorsByDocumentId } from "@/lib/vector-store";
 import { del } from "@vercel/blob";
 
-type Props = {
-	params: Promise<{ id: string }>;
-};
-
 export async function DELETE(
 	req: Request,
 	{ params }: { params: Promise<{ id: string }> }
