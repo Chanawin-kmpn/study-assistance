@@ -29,13 +29,17 @@ export async function deleteVectorsByDocumentId(
 	documentId: string,
 	userId?: string
 ) {
-	const index = await getVectorStore();
+	try {
+		const index = await getVectorStore();
 
-	await index.deleteMany(
-		userId
-			? { documentId: { $eq: documentId }, userId: { $eq: userId } }
-			: { documentId: { $eq: documentId } }
-	);
+		await index.deleteMany(
+			userId
+				? { documentId: { $eq: documentId }, userId: { $eq: userId } }
+				: { documentId: { $eq: documentId } }
+		);
+	} catch (error) {
+		return console.error("Error to delete document in Pinecone", error);
+	}
 }
 
 export async function getContextForQuiz(
