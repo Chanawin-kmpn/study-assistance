@@ -28,7 +28,7 @@ export default function DefaultChatPage() {
 	const { isLoaded, isSignedIn } = useUser();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// ✅ เรียกใช้ QueryClient เพื่อสั่ง refresh ข้อมูล
+	// เรียกใช้ QueryClient เพื่อสั่ง refresh ข้อมูล
 	const queryClient = useQueryClient();
 
 	// --- State ---
@@ -51,7 +51,7 @@ export default function DefaultChatPage() {
 		documentName: null,
 	});
 
-	// ✅ 1. Use Query for fetching documents
+	// Use Query for fetching documents
 	const { data: documents, isLoading: isLoadingDocs } = useQuery({
 		queryKey: ["documents"], // Key นี้สำคัญ
 		queryFn: fetchDocuments,
@@ -81,12 +81,12 @@ export default function DefaultChatPage() {
 			});
 
 			const result = await processDocumentFromUrl(
-				newBlob.url, // 👈 ส่ง URL ของไฟล์ที่อัปโหลดเสร็จแล้ว
-				file.name // 👈 ส่งชื่อไฟล์
+				newBlob.url, // ส่ง URL ของไฟล์ที่อัปโหลดเสร็จแล้ว
+				file.name // ส่งชื่อไฟล์
 			);
 
 			if (result.documentId && result.success) {
-				// ✅ 3. เมื่อ Process เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+				// เมื่อ Process เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
 				await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
 				toast.success("Upload & Processing Complete!");
@@ -130,7 +130,7 @@ export default function DefaultChatPage() {
 		try {
 			await axios.delete(`/api/documents/${documentId}`);
 
-			// ✅ 3. เมื่อ Delete เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+			// เมื่อ Delete เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
 			await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
 			toast.success("Document deleted successfully");
