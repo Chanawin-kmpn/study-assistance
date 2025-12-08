@@ -6,10 +6,13 @@ import { getVectorStore, embeddings } from "../vector-store";
 import { revalidatePath } from "next/cache";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
-import { put } from "@vercel/blob";
+// import { put } from "@vercel/blob"; // 👈 ลบออก: ไม่ต้องอัปโหลดแล้ว
 import "pdf-parse/worker";
 
-export async function uploadDocument(formData: FormData) {
+export async function processDocumentFromUrl(
+	fileUrl: string, // 👈 รับ URL ของไฟล์ที่อัปโหลดเสร็จแล้ว
+	fileName: string // 👈 รับชื่อไฟล์
+) {
 	try {
 		const { userId } = await auth();
 		const clerk = await clerkClient();
@@ -17,40 +20,26 @@ export async function uploadDocument(formData: FormData) {
 		if (!userId) return { success: false, message: "Unauthorized" };
 
 		// ----- ensure user ใน Prisma -----
-		let dbUser = await prisma.user.findUnique({
-			where: { id: userId },
-		});
-
+		// ... (โค้ดตรวจสอบและสร้าง user เหมือนเดิม) ...
+		let dbUser = await prisma.user.findUnique({ where: { id: userId } });
 		if (!dbUser) {
 			const user = await clerk.users.getUser(userId);
 			const email =
 				user.primaryEmailAddress?.emailAddress ??
 				`no-email-${userId}@example.com`;
-
 			dbUser = await prisma.user.create({
-				data: {
-					id: userId,
-					email,
-				},
+				data: { id: userId, email },
 			});
 		}
 
-		const file = formData.get("file") as File;
-		if (!file) throw new Error("No file uploaded");
-		const uniqueId = `${Date.now()}-${Math.random()
-			.toString(36)
-			.substring(2, 9)}`;
-		const uniqueFileName = `${userId}-${uniqueId}-${file.name}`;
+		const response = await fetch(fileUrl);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch file from URL: ${response.statusText}`);
+		}
 
-		// ----- upload ไฟล์ไป Blob -----
-		const blob = await put(uniqueFileName, file, {
-			access: "public",
-			token: process.env.BLOB_READ_WRITE_TOKEN,
-		});
-
-		// ----- อ่าน PDF แล้วแตกเป็น chunk -----
-		const arrayBuffer = await file.arrayBuffer();
+		const arrayBuffer = await response.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
+
 		const parser = new PDFParse({
 			data: buffer,
 			verbosity: VerbosityLevel.WARNINGS,
@@ -61,11 +50,10 @@ export async function uploadDocument(formData: FormData) {
 		const text = result.text;
 		const pageCount = result.total;
 
-		// ----- สร้าง Document ใน Prisma ก่อน เพื่อจะได้ documentId -----
 		const document = await prisma.document.create({
 			data: {
-				name: file.name,
-				url: blob.url,
+				name: fileName, // 👈 ใช้ชื่อไฟล์ที่รับมา
+				url: fileUrl, // 👈 ใช้ URL ที่รับมา
 				userId: userId,
 				pageCount,
 			},
@@ -85,15 +73,14 @@ export async function uploadDocument(formData: FormData) {
 			docs.map(async (doc, i) => {
 				const embedding = await embeddings.embedQuery(doc.pageContent);
 				return {
-					// ใช้ document.id เพื่อกันชนกันระหว่างไฟล์ชื่อซ้ำ
 					id: `${document.id}-${i}`,
 					values: embedding,
 					metadata: {
 						text: doc.pageContent,
-						source: file.name,
+						source: fileName, // 👈 ใช้ชื่อไฟล์ที่รับมา
 						userId: dbUser!.id,
-						url: blob.url,
-						documentId: document.id, // 👈 สำคัญ: ผูก documentId ที่นี่
+						url: fileUrl, // 👈 ใช้ URL ที่รับมา
+						documentId: document.id,
 					},
 				};
 			})
@@ -105,18 +92,16 @@ export async function uploadDocument(formData: FormData) {
 			await vectorStore.upsert(batch);
 		}
 
-		// ถ้าคุณใช้ /dashboard ก็ revalidate ต่อไปได้
 		revalidatePath("/chat");
-		// หรือ revalidatePath("/dashboard");
 
 		return {
 			success: true,
-			message: "Uploaded & Linked to User",
-			documentId: document.id, // 👈 ให้ฝั่ง client ใช้ได้ด้วย
+			message: "Processed document successfully",
+			documentId: document.id,
 			document,
 		};
 	} catch (error) {
-		console.error(error);
+		console.error("Processing Error:", error);
 		return { success: false, message: "Failed to process document." };
 	}
 }

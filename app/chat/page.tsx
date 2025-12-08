@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; // ✅ เพิ่ม useQueryClient
-import { uploadDocument } from "@/lib/actions/actions";
+import { processDocumentFromUrl } from "@/lib/actions/actions";
 import { Upload, Loader2, FileText, Search, Trash2, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
 import { toast } from "sonner";
 import { DocumentItem } from "@/types/types.global";
+import { upload } from "@vercel/blob/client";
 
 // Fetcher Function
 const fetchDocuments = async () => {
@@ -27,7 +28,7 @@ export default function DefaultChatPage() {
 	const { isLoaded, isSignedIn } = useUser();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// ✅ เรียกใช้ QueryClient เพื่อสั่ง refresh ข้อมูล
+	// เรียกใช้ QueryClient เพื่อสั่ง refresh ข้อมูล
 	const queryClient = useQueryClient();
 
 	// --- State ---
@@ -50,7 +51,7 @@ export default function DefaultChatPage() {
 		documentName: null,
 	});
 
-	// ✅ 1. Use Query for fetching documents
+	// Use Query for fetching documents
 	const { data: documents, isLoading: isLoadingDocs } = useQuery({
 		queryKey: ["documents"], // Key นี้สำคัญ
 		queryFn: fetchDocuments,
@@ -71,25 +72,37 @@ export default function DefaultChatPage() {
 			return;
 		}
 		setIsUploading(true);
+		toast.info(`Uploading "${file.name}"... Please wait.`); // แสดง Toast ทันทีที่เริ่ม
+
 		try {
-			const formData = new FormData();
-			formData.append("file", file);
+			const newBlob = await upload(file.name, file, {
+				access: "public",
+				handleUploadUrl: "/api/upload", // API Route สำหรับ Vercel Blob Handler
+			});
 
-			const result = await uploadDocument(formData);
-
-			console.log(result);
+			const result = await processDocumentFromUrl(
+				newBlob.url, // ส่ง URL ของไฟล์ที่อัปโหลดเสร็จแล้ว
+				file.name // ส่งชื่อไฟล์
+			);
 
 			if (result.documentId && result.success) {
-				// ✅ 2. เมื่อ Upload เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+				// เมื่อ Process เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
 				await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
-				toast.success("Upload Complete!");
+				toast.success("Upload & Processing Complete!");
 			} else {
-				toast.error(result.message || "Upload failed");
+				toast.error(
+					result.message ||
+						"Processing failed (File size OK, but AI failed to analyze)."
+				);
 			}
 		} catch (err) {
+			// โค้ดนี้จะดัก Error ที่มาจาก Client Upload (เช่น Network Error หรือ API Token Reject)
 			console.error("Failed to upload document", err);
-			toast.error("Failed to upload document");
+			// ถ้า err.message มีคำว่า Unauthorized มาจาก API Route ให้แสดงข้อความที่เหมาะสม
+			toast.error(
+				"Upload failed. Please check your network or try logging out/in."
+			);
 		} finally {
 			setIsUploading(false);
 		}
@@ -117,7 +130,7 @@ export default function DefaultChatPage() {
 		try {
 			await axios.delete(`/api/documents/${documentId}`);
 
-			// ✅ 3. เมื่อ Delete เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
+			// เมื่อ Delete เสร็จ สั่ง Invalidate Query เพื่อโหลดข้อมูลใหม่
 			await queryClient.invalidateQueries({ queryKey: ["documents"] });
 
 			toast.success("Document deleted successfully");

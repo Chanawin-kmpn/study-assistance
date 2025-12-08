@@ -26,9 +26,10 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { uploadDocument } from "@/lib/actions/actions"; // Server Action Upload
+import { processDocumentFromUrl } from "@/lib/actions/actions";
 import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
-import axios from "axios"; // ✅ เพิ่ม axios เข้ามา
+import axios from "axios";
+import { upload } from "@vercel/blob/client";
 
 type QuizSourceType = "PDF" | "LINK" | "TEXT";
 
@@ -60,8 +61,6 @@ export const CreateQuizForm = ({
 		documentId: defaultDocumentId || "",
 	});
 
-	// ถ้ามี defaultDocumentId เข้ามา (เช่นมาจากหน้า Chat) ให้ update state
-	// ใช้ useEffect เพื่อกัน infinite loop ถ้าใส่ใน render โดยตรง
 	React.useEffect(() => {
 		if (defaultDocumentId) {
 			setFormData((prev) => ({ ...prev, documentId: defaultDocumentId }));
@@ -80,7 +79,6 @@ export const CreateQuizForm = ({
 
 		setSelectedFile(file);
 
-		// Auto-fill Title ถ้ายังไม่มี
 		if (!formData.title) {
 			setFormData((prev) => ({
 				...prev,
@@ -93,7 +91,6 @@ export const CreateQuizForm = ({
 		if (e.target.files?.[0]) handleFileSelect(e.target.files[0]);
 	};
 
-	// --- ✅ Submit Logic (แก้ไขใหม่) ---
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -112,56 +109,75 @@ export const CreateQuizForm = ({
 		}
 
 		setIsLoading(true);
+		let targetDocumentId = formData.documentId;
+
 		try {
-			let targetDocumentId = formData.documentId;
-
-			// 2. ถ้าเป็น PDF และยังไม่อัปโหลด -> อัปโหลดก่อน
+			//ถ้าเป็น PDF และยังไม่อัปโหลด (คือเลือกไฟล์ใหม่มา) -> อัปโหลดก่อน
 			if (sourceType === "PDF" && selectedFile && !targetDocumentId) {
-				const uploadFormData = new FormData();
-				uploadFormData.append("file", selectedFile);
+				toast.loading("Uploading file to storage...", { id: "upload" });
 
-				// แจ้งเตือน UI ว่ากำลังอัปโหลด
+				const newBlob = await upload(selectedFile.name, selectedFile, {
+					access: "public",
+					handleUploadUrl: "/api/upload", // API Route สำหรับ Vercel Blob Handler
+				});
 
-				const result = await uploadDocument(uploadFormData);
+				toast.loading("Processing document...", { id: "upload" });
+
+				// Call Server Action (ส่ง URL และชื่อไฟล์)
+				const result = await processDocumentFromUrl(
+					newBlob.url,
+					selectedFile.name
+				);
 
 				if (!result.success || !result.documentId) {
-					toast.error(result.message || "Failed to upload file.");
+					toast.dismiss("upload");
+					toast.error(result.message || "Failed to process document.");
 					setIsLoading(false);
 					return;
 				}
 
-				toast.success("Document uploaded. Generating quiz...");
+				toast.success("Document processed. Generating quiz...", {
+					id: "upload",
+				});
 				targetDocumentId = result.documentId;
 			}
 
-			// 3. ยิงเข้า API /api/quiz เพื่อสร้างโจทย์
-			// เตรียม Payload ให้ตรงกับ Zod Schema ใน API
+			// ถ้าเป็น PDF ที่ถูกอัปโหลดไปแล้ว targetDocumentId จะมีค่าอยู่แล้ว
+			// หรือถ้าอัปโหลดใหม่ targetDocumentId ก็จะถูก update จาก result.documentId
+
 			const payload = {
 				title: formData.title,
 				description: formData.description,
 				difficulty: formData.difficulty,
-				questionAmount: formData.questionCount, // Mapping: questionCount -> questionAmount
+				questionAmount: formData.questionCount,
 				specificRequirement: formData.specificRequirement,
 				sourceType: sourceType,
-
-				// ส่งข้อมูลตามประเภท
 				documentId: sourceType === "PDF" ? targetDocumentId : undefined,
 				rawText: sourceType === "TEXT" ? formData.sourceText : undefined,
 				sourceUrl: sourceType === "LINK" ? formData.sourceUrl : undefined,
 			};
 
+			// แสดงสถานะ Generating Quiz ถ้าไม่ได้แสดงอยู่
+			if (!targetDocumentId || sourceType !== "PDF") {
+				toast.loading("Generating Quiz...", { id: "generate" });
+			}
+
 			const response = await axios.post("/api/quiz", payload);
+
+			toast.dismiss("upload");
+			toast.dismiss("generate");
 
 			if (response.status === 200) {
 				toast.success("Quiz generated successfully!");
-				// 4. Redirect ไปหน้าทำข้อสอบ
+				// Redirect ไปหน้าทำข้อสอบ
 				router.push(`/quiz/${response.data.quizId}`);
 			} else {
 				toast.error("Failed to generate quiz.");
 			}
 		} catch (error: any) {
+			toast.dismiss("upload");
+			toast.dismiss("generate");
 			console.error("Error:", error);
-			// ดึง error message จาก API ถ้ามี
 			const msg = error.response?.data || "Something went wrong.";
 			toast.error(typeof msg === "string" ? msg : "Failed to create quiz");
 		} finally {
@@ -173,11 +189,9 @@ export const CreateQuizForm = ({
 		setSelectedFile(null);
 		setFormData((prev) => ({ ...prev, documentId: "", title: "" }));
 		if (fileInputRef.current) fileInputRef.current.value = "";
-		// ล้าง URL params ถ้ามี
 		router.replace("/quiz/create/pdf-upload");
 	};
 
-	// --- Render Source Inputs (เหมือนเดิม) ---
 	const renderSourceInput = () => {
 		switch (sourceType) {
 			case "PDF":
@@ -253,11 +267,11 @@ export const CreateQuizForm = ({
 						<div className="flex flex-col items-center py-4 z-10">
 							<div
 								className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110
-                                ${
-																	dragActive
-																		? "bg-indigo-100 text-indigo-600"
-																		: "bg-white shadow-sm text-slate-400 group-hover:text-indigo-500"
-																}`}
+                                    ${
+																			dragActive
+																				? "bg-indigo-100 text-indigo-600"
+																				: "bg-white shadow-sm text-slate-400 group-hover:text-indigo-500"
+																		}`}
 							>
 								{dragActive ? (
 									<Upload className="w-8 h-8 animate-bounce" />
@@ -334,7 +348,6 @@ export const CreateQuizForm = ({
 		}
 	};
 
-	// --- Render Form (เหมือนเดิม) ---
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -443,7 +456,7 @@ export const CreateQuizForm = ({
 								<Loader2 className="w-5 h-5 mr-2 animate-spin" />
 								{/* ข้อความ dynamic ตามสถานะ */}
 								{sourceType === "PDF" && !formData.documentId && selectedFile
-									? "Uploading & Generating..."
+									? "Uploading & Checking..." // 👈 เปลี่ยนข้อความแจ้งให้ชัดเจนขึ้น
 									: "Generating Quiz..."}
 							</>
 						) : (
