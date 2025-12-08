@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 		},
 		proxyClientMaxBodySize: "20mb",
 	},
-	serverExternalPackages: ["pdf-parse"],
+	serverExternalPackages: ["pdf-parse", "@napi-rs/canvas"],
 };
 
 export default nextConfig;
