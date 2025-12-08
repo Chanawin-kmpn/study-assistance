@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { uploadDocument } from "@/lib/actions/actions"; // Server Action Upload
+import { processDocumentFromUrl } from "@/lib/actions/actions"; // Server Action Upload
 import { TWENTY_MB_IN_BYTES } from "@/constants/constant";
 import axios from "axios"; // ✅ เพิ่ม axios เข้ามา
 
@@ -122,7 +122,7 @@ export const CreateQuizForm = ({
 
 				// แจ้งเตือน UI ว่ากำลังอัปโหลด
 
-				const result = await uploadDocument(uploadFormData);
+				const result = await processDocumentFromUrl(uploadFormData);
 
 				if (!result.success || !result.documentId) {
 					toast.error(result.message || "Failed to upload file.");
