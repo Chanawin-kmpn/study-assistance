@@ -1,12 +1,12 @@
 "use server";
 
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { PDFParse } from "pdf-parse";
 import { getVectorStore, embeddings } from "../vector-store";
 import { revalidatePath } from "next/cache";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 import { put } from "@vercel/blob";
-import { parsePDF } from "@/lib/helper/pdfParser";
 
 export async function uploadDocument(formData: FormData) {
 	try {
@@ -50,8 +50,12 @@ export async function uploadDocument(formData: FormData) {
 		// ----- อ่าน PDF แล้วแตกเป็น chunk -----
 		const arrayBuffer = await file.arrayBuffer();
 		const buffer = Buffer.from(arrayBuffer);
+		const parser = new PDFParse({ data: buffer });
+		const result = await parser.getText();
+		await parser.destroy();
 
-		const { text, pageCount } = await parsePDF(buffer);
+		const text = result.text;
+		const pageCount = result.pages.length;
 
 		// ----- สร้าง Document ใน Prisma ก่อน เพื่อจะได้ documentId -----
 		const document = await prisma.document.create({
