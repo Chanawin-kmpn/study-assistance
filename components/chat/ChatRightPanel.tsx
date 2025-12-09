@@ -297,7 +297,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 													<MessageSquare
 														className={`w-4 h-4 mt-1 shrink-0 ${
 															chatId === chat.id
-																? "text-primary/20"
+																? "text-secondary"
 																: "text-slate-400"
 														}`}
 													/>
@@ -314,7 +314,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 														<p
 															className={`text-[10px] mt-1 ${
 																chatId === chat.id
-																	? "text-primary/20"
+																	? "text-white"
 																	: "text-slate-400"
 															}`}
 														>
