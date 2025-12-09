@@ -117,7 +117,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 						<div
 							className={`w-9 h-9 rounded-full flex items-center justify-center shadow-inner transition-colors ${
 								chatMode === "tutor"
-									? "bg-indigo-100 text-indigo-600"
+									? "bg-secondary/10 text-secondary"
 									: "bg-emerald-100 text-emerald-600"
 							}`}
 						>
@@ -128,7 +128,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 							)}
 						</div>
 						<div>
-							<h2 className="font-bold text-sm text-slate-800">
+							<h2 className="font-bold text-sm text-primary">
 								{chatMode === "tutor" ? "AI Tutor" : "Summarizer"}
 							</h2>
 							<p className="text-[10px] text-slate-500">
@@ -149,7 +149,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 					<TabsList className="w-full grid grid-cols-2 bg-slate-100 h-9 p-1">
 						<TabsTrigger
 							value="tutor"
-							className="text-xs font-medium data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm"
+							className="text-xs font-medium data-[state=active]:bg-white data-[state=active]:text-secondary data-[state=active]:shadow-sm data-[state=deactive]:text-primary"
 						>
 							<GraduationCap className="w-3.5 h-3.5 mr-2" /> Tutor Mode
 						</TabsTrigger>
@@ -169,7 +169,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 					{messages.length === 0 && (
 						<div className="flex flex-col items-center justify-center h-full pt-20 text-slate-400 text-center px-10">
 							<div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-4">
-								<BrainCircuit className="w-6 h-6 text-indigo-300" />
+								<BrainCircuit className="w-6 h-6 text-primary/30" />
 							</div>
 							<p className="text-sm">Ask any question about this document.</p>
 						</div>
@@ -186,7 +186,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 								className={`rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed overflow-auto
                                         ${
 																					m.role === "user"
-																						? "bg-indigo-600 text-white rounded-br-none"
+																						? "bg-primary text-white rounded-br-none"
 																						: "bg-white border border-slate-200 text-slate-700 rounded-bl-none"
 																				}`}
 							>
@@ -210,15 +210,15 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 					{isThinking && (
 						<div className="flex items-center gap-2 text-slate-400 text-xs px-2 animate-pulse">
 							<div
-								className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
+								className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
 								style={{ animationDelay: "0ms" }}
 							/>
 							<div
-								className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
+								className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
 								style={{ animationDelay: "150ms" }}
 							/>
 							<div
-								className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
+								className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
 								style={{ animationDelay: "300ms" }}
 							/>
 							<span className="ml-1">AI is analyzing...</span>
@@ -262,13 +262,13 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 							className="w-[320px] sm:w-[360px] pt-10 px-4"
 						>
 							<SheetHeader>
-								<SheetTitle className="flex items-center gap-2 text-slate-800">
+								<SheetTitle className="flex items-center gap-2 text-primary">
 									<History className="w-5 h-5" /> Chat History
 								</SheetTitle>
 							</SheetHeader>
 							<div className="mt-6 flex flex-col h-full pb-10">
 								<Button
-									className="w-full mb-4 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 shadow-none justify-start"
+									className="w-full mb-4 bg-primary/10 text-primary hover:bg-primary/10 border border-primary/20 shadow-none justify-start"
 									onClick={onNewChat}
 								>
 									<PlusCircle className="w-4 h-4 mr-2" /> Start New Chat
@@ -287,7 +287,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
                         group flex flex-col p-3 mb-2 rounded-xl cursor-pointer transition-all border
                         ${
 													chatId === chat.id
-														? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+														? "bg-primary text-white border-primary shadow-md"
 														: "bg-white hover:bg-slate-50 border-slate-100 text-slate-700"
 												}
                       `}
@@ -297,7 +297,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 													<MessageSquare
 														className={`w-4 h-4 mt-1 shrink-0 ${
 															chatId === chat.id
-																? "text-indigo-200"
+																? "text-primary/20"
 																: "text-slate-400"
 														}`}
 													/>
@@ -306,7 +306,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 															className={`text-sm font-medium truncate ${
 																chatId === chat.id
 																	? "text-white"
-																	: "text-slate-800 group-hover:text-indigo-600"
+																	: "text-primary group-hover:text-primary"
 															}`}
 														>
 															{chat.title}
@@ -314,7 +314,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 														<p
 															className={`text-[10px] mt-1 ${
 																chatId === chat.id
-																	? "text-indigo-200"
+																	? "text-primary/20"
 																	: "text-slate-400"
 															}`}
 														>
@@ -378,7 +378,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 								? "Debate with AI or ask questions..."
 								: "Ask for a summary of the content..."
 						}
-						className="pr-20 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-indigo-500 text-sm shadow-sm"
+						className="pr-20 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-primary/50 text-sm shadow-sm"
 						disabled={isThinking}
 					/>
 					<div className="absolute right-2">
@@ -396,7 +396,7 @@ export const ChatRightPanel: React.FC<ChatRightPanelProps> = ({
 							<Button
 								type="submit"
 								size="sm"
-								className="h-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-md px-4"
+								className="h-8 bg-primary text-white rounded-lg text-xs font-bold shadow-md px-4"
 								disabled={!input.trim()}
 							>
 								Send

@@ -55,7 +55,7 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 				<Link href={`/quiz/${quizId}/play`}>
 					<Button
 						variant="outline"
-						className="border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+						className="border-primary/20 text-primary hover:bg-primary/10"
 					>
 						Start First Attempt
 					</Button>
@@ -81,7 +81,7 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 	return (
 		<div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
 			<div className="flex items-center justify-between">
-				<h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+				<h3 className="text-xl font-bold text-primary flex items-center gap-2">
 					<History className="w-5 h-5" /> Recent History
 				</h3>
 
@@ -166,7 +166,7 @@ export function AttemptsList({ attempts, quizId }: AttemptsListProps) {
 									<Button
 										variant="ghost"
 										size="sm"
-										className="text-slate-400 group-hover:text-indigo-600 hover:text-indigo-600 transition-colors"
+										className="text-slate-400 group-hover:text-primary hover:text-primary transition-colors"
 									>
 										Review <ArrowRight className="w-4 h-4 ml-1" />
 									</Button>

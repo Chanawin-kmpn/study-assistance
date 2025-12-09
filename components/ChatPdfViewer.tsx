@@ -86,7 +86,7 @@ export function ChatPdfViewer({ fileUrl, onPageChange }: Props) {
 									onClick={() => scrollToPage(page)}
 									className={`mb-2 cursor-pointer rounded-md border overflow-hidden ${
 										page === selectedPage
-											? "border-indigo-400 bg-indigo-500/10"
+											? "border-primary/60 bg-primary/10"
 											: "border-slate-700 hover:bg-slate-800/60"
 									}`}
 								>

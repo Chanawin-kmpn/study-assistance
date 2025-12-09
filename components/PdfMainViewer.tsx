@@ -103,7 +103,7 @@ export const PdfMainViewer = forwardRef<
 					}}
 					loading={
 						<div className="flex flex-col items-center justify-center h-full text-slate-400">
-							<Loader2 className="w-8 h-8 animate-spin mb-2 text-indigo-500" />
+							<Loader2 className="w-8 h-8 animate-spin mb-2 text-primary" />
 							<span className="text-sm">Loading Document...</span>
 						</div>
 					}
@@ -117,7 +117,7 @@ export const PdfMainViewer = forwardRef<
 							}}
 							className={`mb-8 transition-all duration-300 ${
 								page === selectedPage
-									? "shadow-xl ring-2 ring-indigo-400 z-10"
+									? "shadow-xl ring-2 ring-secondary/60 z-10"
 									: "shadow-sm opacity-90 hover:opacity-100"
 							}`}
 						>

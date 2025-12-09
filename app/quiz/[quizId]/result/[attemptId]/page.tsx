@@ -56,7 +56,7 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 		<div className="max-w-4xl mx-auto p-6 pb-20 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* Score Summary */}
 			<div className="flex flex-col items-center justify-center space-y-4 py-8">
-				<h1 className="text-2xl font-bold text-slate-700">Quiz Result</h1>
+				<h1 className="text-2xl font-bold text-secondary">Quiz Result</h1>
 
 				<div className="relative flex flex-col items-center justify-center">
 					<div
@@ -85,12 +85,12 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 			{/* Action Buttons */}
 			<div className="flex justify-center gap-4">
 				<Link href={`/quiz/${quizId}`}>
-					<Button variant="outline">
+					<Button variant="outline" className="text-primary hover:text-primary">
 						<ArrowLeft className="w-4 h-4 mr-2" /> Back to Details
 					</Button>
 				</Link>
 				<Link href={`/quiz/${quizId}/play`}>
-					<Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+					<Button className="bg-primary text-white">
 						<RotateCcw className="w-4 h-4 mr-2" /> Retake Quiz
 					</Button>
 				</Link>
@@ -100,7 +100,7 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 
 			{/* Questions Review */}
 			<div className="space-y-6">
-				<h2 className="text-xl font-bold text-slate-800 mb-4">
+				<h2 className="text-xl font-bold text-secondary mb-4">
 					Detailed Review
 				</h2>
 
@@ -130,7 +130,7 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 									<span className="font-bold text-slate-500 mr-2">
 										Q{index + 1}.
 									</span>
-									<span className="font-medium text-slate-800">{q.prompt}</span>
+									<span className="font-medium text-primary">{q.prompt}</span>
 								</div>
 								{/* Status Badge ที่หัวข้อ */}
 								{isCorrectAnswer ? (
@@ -217,7 +217,7 @@ export default async function QuizResultPage({ params }: ResultPageProps) {
 										className={cn(
 											"mt-4 p-4 rounded-lg border text-sm flex gap-3 items-start",
 											isCorrectAnswer
-												? "bg-indigo-50 border-indigo-100 text-indigo-800"
+												? "bg-primary/10 border-primary-20 text-primary"
 												: "bg-red-50 border-red-100 text-red-800"
 										)}
 									>

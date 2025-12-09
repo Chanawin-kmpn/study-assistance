@@ -134,15 +134,15 @@ export function CreateQuizDialog({
 										onClick={() => setSelectedDocId(doc.id)}
 										className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
 											selectedDocId === doc.id
-												? "border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600"
-												: "border-slate-200 hover:border-indigo-200 hover:bg-slate-50"
+												? "border-primary bg-primary/10 ring-1 ring-primary"
+												: "border-slate-200 hover:border-primary/20 hover:bg-slate-50"
 										}`}
 									>
 										<div className="flex items-center gap-3 overflow-hidden">
 											<div
 												className={`p-2 rounded-md ${
 													selectedDocId === doc.id
-														? "bg-indigo-100 text-indigo-600"
+														? "bg-primary/10 text-primary"
 														: "bg-slate-100 text-slate-500"
 												}`}
 											>
@@ -151,7 +151,7 @@ export function CreateQuizDialog({
 											<span
 												className={`text-sm truncate ${
 													selectedDocId === doc.id
-														? "font-medium text-indigo-900"
+														? "font-medium text-primary"
 														: "text-slate-700"
 												}`}
 											>
@@ -159,7 +159,7 @@ export function CreateQuizDialog({
 											</span>
 										</div>
 										{selectedDocId === doc.id && (
-											<CheckCircle2 className="w-4 h-4 text-indigo-600" />
+											<CheckCircle2 className="w-4 h-4 text-primary" />
 										)}
 									</div>
 								))}
@@ -209,7 +209,7 @@ export function CreateQuizDialog({
 					<Button
 						onClick={handleCreate}
 						disabled={isSubmitting || !selectedDocId}
-						className="bg-indigo-600 hover:bg-indigo-700 text-white"
+						className="bg-primary text-white"
 					>
 						{isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
 						Generate Quiz

@@ -112,6 +112,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 				toast.error("Failed to submit. Please try again.");
 				setIsSubmitting(false);
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			toast.error("Something went wrong.");
 			setIsSubmitting(false);
@@ -129,7 +130,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 			<div className="flex items-center justify-between mb-6">
 				<div className="flex flex-col gap-1">
 					<h2 className="font-bold text-slate-700 flex items-center gap-2">
-						<span className="text-indigo-600">Q{currentQuestionIndex + 1}</span>
+						<span className="text-primary">Q{currentQuestionIndex + 1}</span>
 						<span className="text-slate-400 text-sm font-normal">
 							/ {quiz.questions.length}
 						</span>
@@ -150,7 +151,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 			{/* Main Card: Question */}
 			<Card className="flex-1 flex flex-col border-slate-200 shadow-md overflow-hidden">
 				<CardHeader className="bg-slate-50 border-b border-slate-100 py-8">
-					<h3 className="text-xl md:text-2xl font-semibold text-slate-800 leading-relaxed">
+					<h3 className="text-xl md:text-2xl font-semibold text-primary leading-relaxed">
 						{currentQuestion.prompt}
 					</h3>
 				</CardHeader>
@@ -165,16 +166,16 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 								className={cn(
 									"flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 relative group",
 									isSelected
-										? "border-indigo-600 bg-indigo-50 shadow-sm"
-										: "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+										? "border-primary bg-primary/10 shadow-sm"
+										: "border-slate-100 hover:border-primary/20 hover:bg-slate-50"
 								)}
 							>
 								<div
 									className={cn(
 										"w-6 h-6 rounded-full border-2 mr-4 flex items-center justify-center transition-colors",
 										isSelected
-											? "border-indigo-600 bg-indigo-600"
-											: "border-slate-300 group-hover:border-indigo-300"
+											? "border-primary bg-primary"
+											: "border-slate-300 group-hover:border-primary/30"
 									)}
 								>
 									{isSelected && (
@@ -184,7 +185,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 								<span
 									className={cn(
 										"text-lg font-medium",
-										isSelected ? "text-indigo-900" : "text-slate-700"
+										isSelected ? "text-primary" : "text-slate-700"
 									)}
 								>
 									{choice.text}
@@ -224,10 +225,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 							)}
 						</Button>
 					) : (
-						<Button
-							onClick={handleNext}
-							className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px]"
-						>
+						<Button onClick={handleNext} className="bg-primary min-w-[120px]">
 							Next <ChevronRight className="w-5 h-5 ml-1" />
 						</Button>
 					)}
