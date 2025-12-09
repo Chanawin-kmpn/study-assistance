@@ -59,11 +59,11 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 
 	return (
 		<Link href={`/quiz/${quiz.id}`} className="block h-full">
-			<Card className="group relative flex flex-col h-full border-slate-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-indigo-300 hover:-translate-y-1 overflow-hidden rounded-2xl cursor-pointer">
+			<Card className="group relative flex flex-col h-full border-slate-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 overflow-hidden rounded-2xl cursor-pointer">
 				<CardContent className="p-5 flex flex-col h-full">
 					{/* 1. Quiz Title & Description */}
 					<div className="mb-4">
-						<h3 className="text-lg font-bold text-slate-800 leading-tight line-clamp-2 group-hover:text-indigo-700 transition-colors mb-1">
+						<h3 className="text-lg font-bold text-primary leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1">
 							{quiz.title}
 						</h3>
 						<p className="text-sm text-slate-500 line-clamp-1">
@@ -100,11 +100,11 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 							</div>
 						) : (
 							// UI for Not Started
-							<div className="h-full w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center gap-2 p-4 group-hover:bg-indigo-50/30 group-hover:border-indigo-200 transition-all">
+							<div className="h-full w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center gap-2 p-4 group-hover:bg-primary/10/30 group-hover:border-primary/20 transition-all">
 								<div className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-									<Play className="w-5 h-5 text-indigo-500 fill-current ml-0.5" />
+									<Play className="w-5 h-5 text-secondary/50 fill-current ml-0.5" />
 								</div>
-								<div className="text-xs font-semibold text-slate-500 group-hover:text-indigo-600">
+								<div className="text-xs font-semibold text-slate-500 group-hover:text-primary">
 									Ready to Start?
 								</div>
 							</div>
@@ -141,7 +141,7 @@ export const QuizCard = ({ quiz }: QuizCardProps) => {
 
 				{/* Hover Arrow Indicator (Optional Decoration) */}
 				<div className="absolute top-5 right-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-					<ArrowRight className="w-5 h-5 text-indigo-400" />
+					<ArrowRight className="w-5 h-5 text-primary/60" />
 				</div>
 			</Card>
 		</Link>

@@ -81,7 +81,7 @@ export default function MainSidebar() {
                         ${
 													item.path === pathname
 														? "bg-white shadow-sm text-primary font-semibold ring-1 ring-slate-100"
-														: "text-slate-500 hover:bg-white/60 hover:text-slate-800"
+														: "text-slate-500 hover:bg-white/60 hover:text-primary"
 												}
                         ${isCollapsed ? "justify-center" : ""}
                     `}

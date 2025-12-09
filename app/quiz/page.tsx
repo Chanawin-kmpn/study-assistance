@@ -74,7 +74,7 @@ export default function QuizLibraryPage() {
 								<div className="p-1.5 rounded-md bg-primary text-white shadow-sm shadow-primary/20">
 									<Plus className="w-4 h-4" />
 								</div>
-								<h2 className="text-lg font-bold text-slate-800">
+								<h2 className="text-lg font-bold text-primary">
 									Create New Quiz
 								</h2>
 							</div>
@@ -89,7 +89,7 @@ export default function QuizLibraryPage() {
 										<div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
 											<FileText className="w-6 h-6 text-red-500" />
 										</div>
-										<h3 className="font-bold text-lg text-slate-800 group-hover:text-red-600 mb-1">
+										<h3 className="font-bold text-lg text-primary group-hover:text-red-600 mb-1">
 											From PDF
 										</h3>
 										<p className="text-xs text-slate-400 mb-4 line-clamp-2">
@@ -111,31 +111,34 @@ export default function QuizLibraryPage() {
 								</Link>
 
 								{/* Card 2: Link */}
-								<Link href="/quiz/create/insert-link" className="group">
-									<div className="bg-white h-full rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 transition-all p-6 flex flex-col relative overflow-hidden">
-										<div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-											<LinkIcon className="w-6 h-6 text-blue-500" />
-										</div>
-										<h3 className="font-bold text-lg text-slate-800 group-hover:text-blue-600 mb-1">
-											From Web Link
-										</h3>
-										<p className="text-xs text-slate-400 mb-4 line-clamp-2">
-											Paste a URL from any website or article.
-										</p>
-										<div className="mt-auto pt-4 border-t border-slate-50">
-											<div className="flex items-start gap-2">
-												<Sparkles className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
-												<span className="text-[11px] font-medium text-slate-500 leading-tight">
-													Best for{" "}
-													<span className="text-blue-500 font-bold">
-														Articles & News
+								<div className="relative">
+									<Link href="/quiz" className="group">
+										<div className="bg-white h-full rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 transition-all p-6 flex flex-col relative overflow-hidden">
+											<div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+												<LinkIcon className="w-6 h-6 text-blue-500" />
+											</div>
+											<h3 className="font-bold text-lg text-primary group-hover:text-blue-600 mb-1">
+												From Web Link
+											</h3>
+											<p className="text-xs text-slate-400 mb-4 line-clamp-2">
+												Paste a URL from any website or article.
+											</p>
+											<div className="mt-auto pt-4 border-t border-slate-50">
+												<div className="flex items-start gap-2">
+													<Sparkles className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />
+													<span className="text-[11px] font-medium text-slate-500 leading-tight">
+														Best for{" "}
+														<span className="text-blue-500 font-bold">
+															Articles & News
+														</span>
+														. Extracts content instantly for testing.
 													</span>
-													. Extracts content instantly for testing.
-												</span>
+												</div>
 											</div>
 										</div>
-									</div>
-								</Link>
+									</Link>
+									<div className="absolute inset-0 bg-slate-50/50 rounded-2xl cursor-no-drop" />
+								</div>
 
 								{/* Card 3: Text */}
 								<Link href="/quiz/create/text" className="group">
@@ -143,7 +146,7 @@ export default function QuizLibraryPage() {
 										<div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
 											<Type className="w-6 h-6 text-emerald-500" />
 										</div>
-										<h3 className="font-bold text-lg text-slate-800 group-hover:text-emerald-600 mb-1">
+										<h3 className="font-bold text-lg text-primary group-hover:text-emerald-600 mb-1">
 											From Text
 										</h3>
 										<p className="text-xs text-slate-400 mb-4 line-clamp-2">
@@ -168,7 +171,7 @@ export default function QuizLibraryPage() {
 
 						<div className="w-full">
 							<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-								<h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+								<h2 className="text-lg font-bold text-primary flex items-center gap-2">
 									<LayoutGrid className="w-5 h-5 text-primary" />
 									Your Quizzes ({filteredQuizzes.length})
 								</h2>

@@ -85,7 +85,7 @@ export function QuizHeader({ quiz }: QuizHeaderProps) {
 							Created {format(new Date(quiz.createdAt), "PP")}
 						</span>
 					</div>
-					<h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+					<h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">
 						{quiz.title}
 					</h1>
 				</div>

@@ -25,7 +25,7 @@ export const ChatLeftSidebar: React.FC<ChatLeftSidebarProps> = ({
 				<Button
 					variant="ghost"
 					size="sm"
-					className="text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 -ml-2"
+					className="text-slate-500 hover:text-primary hover:bg-primary/10 -ml-2"
 					onClick={() => router.push("/chat")}
 				>
 					<ArrowLeft className="w-4 h-4 mr-2" />

@@ -202,7 +202,7 @@ export const CreateQuizForm = ({
 					const isExisting = !!formData.documentId && !selectedFile;
 
 					return (
-						<div className="flex flex-col items-center justify-center h-full border-2 border-solid border-indigo-200 bg-indigo-50/30 rounded-xl p-10 relative animate-in fade-in zoom-in duration-300">
+						<div className="flex flex-col items-center justify-center h-full border-2 border-solid border-primary/20 bg-primary/10/30 rounded-xl p-10 relative animate-in fade-in zoom-in duration-300">
 							<Button
 								type="button"
 								variant="ghost"
@@ -217,7 +217,7 @@ export const CreateQuizForm = ({
 
 							<div className="w-20 h-20 bg-white shadow-md rounded-full flex items-center justify-center mb-4">
 								{selectedFile ? (
-									<FileText className="w-10 h-10 text-indigo-500" />
+									<FileText className="w-10 h-10 text-secondary" />
 								) : (
 									<FileCheck className="w-10 h-10 text-green-500" />
 								)}
@@ -246,8 +246,8 @@ export const CreateQuizForm = ({
 						className={`flex flex-col items-center justify-center h-full rounded-xl border-2 transition-all duration-300 cursor-pointer p-8 text-center group relative overflow-hidden
                             ${
 															dragActive
-																? "border-indigo-500 bg-indigo-50 scale-[0.99]"
-																: "border-dashed border-slate-300 bg-slate-50 hover:border-indigo-400 hover:bg-slate-100 hover:shadow-md"
+																? "border-primary/50 bg-primary/10 scale-[0.99]"
+																: "border-dashed border-slate-300 bg-slate-50 hover:border-primary/60 hover:bg-slate-100 hover:shadow-md"
 														}
                         `}
 						onClick={() => !isLoading && fileInputRef.current?.click()}
@@ -269,17 +269,17 @@ export const CreateQuizForm = ({
 								className={`w-16 h-16 rounded-full flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110
                                     ${
 																			dragActive
-																				? "bg-indigo-100 text-indigo-600"
-																				: "bg-white shadow-sm text-slate-400 group-hover:text-indigo-500"
+																				? "bg-primary/10 text-primary"
+																				: "bg-white shadow-sm text-slate-400 group-hover:text-primary/50"
 																		}`}
 							>
 								{dragActive ? (
-									<Upload className="w-8 h-8 animate-bounce" />
+									<Upload className="w-8 h-8 text-secondary animate-bounce" />
 								) : (
-									<FileUp className="w-8 h-8" />
+									<FileUp className="w-8 h-8 text-secondary" />
 								)}
 							</div>
-							<h3 className="text-lg font-bold text-slate-700 mb-2 group-hover:text-indigo-700 transition-colors">
+							<h3 className="text-lg font-bold text-primary mb-2 group-hover:text-primary transition-colors">
 								{dragActive ? "Drop PDF Here" : "Select PDF File"}
 							</h3>
 							<p className="text-slate-400 mb-6 text-xs max-w-[200px]">
@@ -289,7 +289,7 @@ export const CreateQuizForm = ({
 							<Button
 								type="button"
 								variant="outline"
-								className="border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-full px-6 h-8 text-xs"
+								className="border-primary/20 text-primary hover:bg-primary hover:text-white rounded-full px-6 h-8 text-xs"
 							>
 								Browse File
 							</Button>
@@ -335,7 +335,7 @@ export const CreateQuizForm = ({
 							<Type className="w-4 h-4" /> Paste Your Text
 						</div>
 						<Textarea
-							className="flex-1 min-h-[200px] resize-none bg-white focus-visible:ring-indigo-500"
+							className="flex-1 min-h-[200px] resize-none bg-white focus-visible:ring-primary/50"
 							placeholder="Paste your study notes..."
 							value={formData.sourceText}
 							onChange={(e) =>
@@ -448,7 +448,7 @@ export const CreateQuizForm = ({
 				<div className="pt-4">
 					<Button
 						type="submit"
-						className="w-full h-12 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
+						className="w-full h-12 text-lg bg-primary shadow-lg shadow-primary/20 transition-all"
 						disabled={isLoading}
 					>
 						{isLoading ? (

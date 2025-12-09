@@ -203,7 +203,7 @@ export default function DefaultChatPage() {
 										className={`w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
 											dragActive
 												? "bg-secondary/10 text-secondary"
-												: "text-primary"
+												: "text-secondary"
 										}`}
 									>
 										<Upload className="w-8 h-8" />

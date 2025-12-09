@@ -68,14 +68,14 @@ export function PdfSidebar({
                                 relative cursor-pointer rounded-md overflow-hidden border transition-all duration-200
                                 ${
 																	page === selectedPage
-																		? "border-indigo-500 shadow-md ring-2 ring-indigo-100"
-																		: "border-slate-200 hover:border-indigo-300 bg-white hover:shadow-sm"
+																		? "border-secondary/50 shadow-md ring-2 ring-secondary/10"
+																		: "border-slate-200 hover:border-secondary/30 bg-white hover:shadow-sm"
 																}
                             `}
 						>
 							<div
 								className={`absolute top-1 right-1 z-10 text-[9px] px-1.5 py-0.5 rounded font-bold text-white shadow-sm ${
-									page === selectedPage ? "bg-indigo-600" : "bg-slate-500/80"
+									page === selectedPage ? "bg-secondary" : "bg-slate-500/80"
 								}`}
 							>
 								{page}

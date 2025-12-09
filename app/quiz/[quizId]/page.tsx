@@ -89,13 +89,13 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 				<Card className="border-slate-200 shadow-sm h-full">
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2 text-slate-700">
-							<Brain className="w-5 h-5 text-indigo-500" />
+							<Brain className="w-5 h-5 text-secondary" />
 							Quiz Details
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="grid grid-cols-2 gap-4">
 						<div className="flex flex-col p-4 bg-slate-50 rounded-xl items-center justify-center text-center border border-slate-100">
-							<span className="text-3xl font-bold text-slate-800">
+							<span className="text-3xl font-bold text-primary">
 								{totalQuestions}
 							</span>
 							<span className="text-xs text-slate-500 uppercase font-semibold mt-1">
@@ -168,7 +168,7 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 									<div className="text-sm text-slate-500 font-medium uppercase tracking-wide">
 										Best Score
 									</div>
-									<div className="text-2xl font-bold text-slate-800">
+									<div className="text-2xl font-bold text-primary">
 										{bestAttempt?.score}{" "}
 										<span className="text-slate-400 text-lg">
 											/ {bestAttempt?.total}
@@ -207,17 +207,14 @@ export default async function QuizDetailsPage({ params }: QuizPageProps) {
 			{/* --- Footer --- */}
 			<div className="flex items-center justify-between pt-6 mt-auto">
 				<Link href="/quiz">
-					<Button
-						variant="ghost"
-						className="text-slate-500 hover:text-slate-800"
-					>
+					<Button variant="ghost" className="text-slate-500 hover:text-primary">
 						<ChevronLeft className="w-4 h-4 mr-2" /> Back
 					</Button>
 				</Link>
 				<Link href={`/quiz/${quiz.id}/play`}>
 					<Button
 						size="lg"
-						className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 px-8 h-12 text-lg hover:scale-105 transition-transform"
+						className="bg-primary text-white shadow-lg shadow-primary/20 px-8 h-12 text-lg hover:scale-105 transition-transform"
 					>
 						Start Quiz <Play className="w-5 h-5 ml-2 fill-current" />
 					</Button>

@@ -51,7 +51,7 @@ export function AuthRequiredCard({
 							// เพิ่ม event handlers
 							onMouseEnter={() => setIsHoveringButton(true)}
 							onMouseLeave={() => setIsHoveringButton(false)}
-							className="h-12 px-8 bg-primary hover:bg-[#2a2696] text-white rounded-full font-prompt text-base shadow-lg shadow-indigo-900/20 hover:scale-105 transition-transform"
+							className="h-12 px-8 bg-primary text-white rounded-full font-prompt text-base shadow-lg shadow-primary/90 hover:scale-105 transition-transform"
 						>
 							<LogIn className="w-5 h-5 mr-2" />
 							Sign In to Continue
