@@ -5,8 +5,9 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Image as ImageIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import RotatingText from "@/components/RotatingText";
+import HomeIllustration from "@/components/illustration/HomeIllustration";
 
 export default function HeroSection() {
 	const heroSectionRef = useRef<HTMLElement>(null);
@@ -119,21 +120,7 @@ export default function HeroSection() {
 					{/* Right Column: Visuals (Mock Images) */}
 					<div className="lg:col-span-7 relative hidden lg:block">
 						<div className="flex gap-6 items-start justify-end relative pl-10">
-							{/* Image 1: Large Portrait (Left) */}
-							<div className="hero-image-1 w-[55%] aspect-3/4 bg-slate-200/80 backdrop-blur-sm border border-white/50 shadow-2xl flex items-center justify-center rounded-[2px] relative z-10">
-								{/* Placeholder Icon */}
-								<div className="p-6 rounded-2xl bg-slate-300/50">
-									<ImageIcon className="w-16 h-16 text-slate-400" />
-								</div>
-							</div>
-
-							{/* Image 2: Square (Right - Offset Top) */}
-							<div className="hero-image-2 w-[40%] aspect-square bg-slate-200/80 backdrop-blur-sm border border-white/50 shadow-xl flex items-center justify-center rounded-[2px] -mt-12 relative z-0">
-								{/* Placeholder Icon */}
-								<div className="p-5 rounded-2xl bg-slate-300/50">
-									<ImageIcon className="w-12 h-12 text-slate-400" />
-								</div>
-							</div>
+							<HomeIllustration />
 						</div>
 					</div>
 				</div>

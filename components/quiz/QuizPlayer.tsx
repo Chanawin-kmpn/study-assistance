@@ -112,6 +112,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
 				toast.error("Failed to submit. Please try again.");
 				setIsSubmitting(false);
 			}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			toast.error("Something went wrong.");
 			setIsSubmitting(false);
