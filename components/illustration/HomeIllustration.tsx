@@ -1,3 +1,9 @@
+import {
+	MAX_DELAY,
+	MAX_SCALE,
+	MAX_LURMTAR_TIME,
+	MIN_LURMTAR_TIME,
+} from "@/constants/constant";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/all";
@@ -5,15 +11,10 @@ import * as React from "react";
 
 gsap.registerPlugin(MotionPathPlugin);
 
-const MIN_LURMTAR_TIME = 2;
-const MAX_LURMTAR_TIME = 6;
-
-const MAX_SCALE = 1.8;
-const MAX_DELAY = 1.5;
-
 const HomeIllustration = () => {
 	useGSAP(() => {
 		const sparkles = document.querySelectorAll("#sparkles > *");
+		const floatingTl = gsap.timeline({});
 
 		sparkles.forEach((sparkle) => {
 			const randomDuration = Math.random() * 0.8 + 1; // 0.4 ถึง 1.2 วินาที
@@ -35,13 +36,11 @@ const HomeIllustration = () => {
 						ease: "power2.inOut",
 					},
 				})
-				// 3a. เฟส 1: ส่องแสงและขยายตัว
 				.to(sparkle, {
 					scale: randomScale,
 					opacity: Math.random() * 0.8 + 0.2, // สุ่มความทึบแสง 0.2 ถึง 1
 					duration: randomDuration * 0.5, // ใช้เวลาครึ่งเดียวในการพุ่งขึ้น
 				})
-				// 3b. เฟส 2: ค้างและจางลงเล็กน้อย
 				.to(sparkle, {
 					opacity: 0.1, // จางลงเล็กน้อย
 					duration: randomDuration * 0.5, // ใช้เวลาครึ่งเดียวในการจางลง
@@ -73,9 +72,7 @@ const HomeIllustration = () => {
 				ease: "power1.in",
 			}
 		);
-	}, []);
 
-	useGSAP(() => {
 		const blink = () => {
 			const tl = gsap.timeline({
 				onComplete: () => {
@@ -123,11 +120,6 @@ const HomeIllustration = () => {
 				);
 		};
 
-		// เริ่มทำงานครั้งแรก
-		blink();
-	}, []);
-
-	useGSAP(() => {
 		gsap.to("#robot", {
 			y: 10,
 			duration: 2,
@@ -143,12 +135,36 @@ const HomeIllustration = () => {
 			ease: "power1.inOut",
 			duration: 2,
 		});
+
+		floatingTl
+			.to(["#light-blub", "#character"], {
+				y: 15,
+				duration: 3,
+				ease: "power1.inOut",
+				repeat: -1,
+				yoyo: true,
+			})
+			.from(
+				".light-blub-shadow",
+				{
+					scaleX: 0.5,
+					transformOrigin: "center",
+					duration: 3,
+					ease: "power1.inOut",
+					repeat: -1,
+					yoyo: true,
+				},
+				"<"
+			);
+
+		blink();
 	}, []);
 
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
 			<g id="freepik--background-complete--inject-2">
 				<path
+					className="light-blub-shadow"
 					d="M298.66,471.25c0,2.74-17.44,4.95-39,4.95s-39-2.21-39-4.95,17.44-5,39-5S298.66,468.51,298.66,471.25Z"
 					style={{
 						fill: "#e0e0e0",
@@ -624,7 +640,7 @@ const HomeIllustration = () => {
 					}}
 				/>
 			</g>
-			<g id="freepik--light-bulb--inject-2">
+			<g id="light-blub">
 				<path
 					d="M314.58,397.83l-124-.29c-5.14,0-9.3-3.63-9.29-8.08h0c0-4.44,4.19-8,9.33-8l124,.29c5.14,0,9.29,3.62,9.28,8.07h0C323.89,394.24,319.72,397.84,314.58,397.83Z"
 					style={{
@@ -849,7 +865,7 @@ const HomeIllustration = () => {
 					}}
 				/>
 			</g>
-			<g id="freepik--Character--inject-2">
+			<g id="character">
 				<path
 					d="M280.89,227.42,285,265.19l24.32,8.11,1,11.76L276,282.76s-10.58.26-12.88-13.68l-.56-36.64Z"
 					style={{

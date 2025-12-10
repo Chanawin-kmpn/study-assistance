@@ -42,11 +42,11 @@ export default function CTASection({ scrollerId }: SectionProps) {
 						Ready to transform your learning
 					</h2>
 					<p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-						เริ่มต้นใช้งานฟรีวันนี้ ไม่ต้องใช้บัตรเครดิต พร้อมเครื่องมือ AI
-						ที่จะช่วยให้การเรียนรู้ของคุณมีประสิทธิภาพมากขึ้น
+						Start your free trial today. No credit card needed. Get AI tools to
+						boost your learning efficiency.
 					</p>
 					<div className="flex flex-wrap gap-4 justify-center">
-						<Link href="/quiz/create">
+						<Link href="/quiz">
 							<Button
 								size="lg"
 								className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-white rounded-[0.625rem] font-prompt shadow-lg hover:shadow-xl transition-all"

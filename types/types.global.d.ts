@@ -35,3 +35,7 @@ type DocumentItem = {
 type ChatSession = { id: string; title: string; createdAt: Date };
 
 type ChatMode = "tutor" | "summary";
+
+interface FeaturesIllustrationProps {
+	isActive: boolean;
+}

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Github, Twitter, Facebook, Mail } from "lucide-react";
+import { FOOTER_LINKS, SOCIAL_LINKS } from "@/constants";
 
 export default function Footer() {
 	const currentYear = new Date().getFullYear();
@@ -21,98 +21,26 @@ export default function Footer() {
 						</p>
 					</div>
 
-					{/* Product Links */}
-					<div>
-						<h4 className="font-bold font-prompt text-primary mb-4">Product</h4>
-						<ul className="space-y-2">
-							<li>
-								<Link
-									href="/features"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Features
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/pricing"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Pricing
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/faq"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									FAQ
-								</Link>
-							</li>
-						</ul>
-					</div>
-
-					{/* Company Links */}
-					<div>
-						<h4 className="font-bold font-prompt text-primary mb-4">Company</h4>
-						<ul className="space-y-2">
-							<li>
-								<Link
-									href="/about"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									About
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/blog"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Blog
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/contact"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Contact
-								</Link>
-							</li>
-						</ul>
-					</div>
-
-					{/* Legal Links */}
-					<div>
-						<h4 className="font-bold font-prompt text-primary mb-4">Legal</h4>
-						<ul className="space-y-2">
-							<li>
-								<Link
-									href="/privacy"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Privacy Policy
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/terms"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Terms of Service
-								</Link>
-							</li>
-							<li>
-								<Link
-									href="/cookies"
-									className="text-sm text-slate-600 hover:text-primary transition-colors"
-								>
-									Cookie Policy
-								</Link>
-							</li>
-						</ul>
-					</div>
+					{/* Navigation Links - Map Rendered */}
+					{FOOTER_LINKS.map((section) => (
+						<div key={section.title}>
+							<h4 className="font-bold font-prompt text-primary mb-4">
+								{section.title}
+							</h4>
+							<ul className="space-y-2">
+								{section.items.map((item) => (
+									<li key={item.name}>
+										<Link
+											href={item.href}
+											className="text-sm text-slate-600 hover:text-primary transition-colors"
+										>
+											{item.name}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+					))}
 				</div>
 
 				{/* Bottom Bar */}
@@ -121,38 +49,26 @@ export default function Footer() {
 						© {currentYear} SchoolMate. All rights reserved.
 					</p>
 
-					{/* Social Links */}
+					{/* Social Links - Map Rendered */}
 					<div className="flex gap-4">
-						<a
-							href="https://github.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="w-9 h-9 rounded-full glass glass-hover flex items-center justify-center border-slate-200 text-slate-600 hover:text-primary transition-colors"
-						>
-							<Github className="w-4 h-4" />
-						</a>
-						<a
-							href="https://twitter.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="w-9 h-9 rounded-full glass glass-hover flex items-center justify-center border-slate-200 text-slate-600 hover:text-primary transition-colors"
-						>
-							<Twitter className="w-4 h-4" />
-						</a>
-						<a
-							href="https://facebook.com"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="w-9 h-9 rounded-full glass glass-hover flex items-center justify-center border-slate-200 text-slate-600 hover:text-primary transition-colors"
-						>
-							<Facebook className="w-4 h-4" />
-						</a>
-						<a
-							href="mailto:contact@schoolmate.com"
-							className="w-9 h-9 rounded-full glass glass-hover flex items-center justify-center border-slate-200 text-slate-600 hover:text-primary transition-colors"
-						>
-							<Mail className="w-4 h-4" />
-						</a>
+						{SOCIAL_LINKS.map((social) => (
+							<a
+								key={social.ariaLabel}
+								href={social.href}
+								target={
+									social.href.startsWith("mailto:") ? undefined : "_blank"
+								}
+								rel={
+									social.href.startsWith("mailto:")
+										? undefined
+										: "noopener noreferrer"
+								}
+								aria-label={social.ariaLabel}
+								className="w-9 h-9 rounded-full glass glass-hover flex items-center justify-center border-slate-200 text-slate-600 hover:text-primary transition-colors"
+							>
+								<social.icon className="w-4 h-4" />
+							</a>
+						))}
 					</div>
 				</div>
 			</div>
