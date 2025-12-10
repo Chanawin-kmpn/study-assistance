@@ -25,6 +25,14 @@ export default function MainSidebar() {
 		{ name: "My Quizzes", icon: FileText, path: "/quiz" },
 	];
 
+	const isActive = (path: string) => {
+		if (path === "/") {
+			return pathname === "/";
+		}
+
+		return pathname.startsWith(path);
+	};
+
 	return (
 		<aside
 			className={`glass-panel h-full flex flex-col shrink-0 z-50 font-prompt transition-all duration-300 relative
@@ -79,7 +87,7 @@ export default function MainSidebar() {
 						href={item.path}
 						className={`flex items-center  gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative
                         ${
-													item.path === pathname
+													isActive(item.path)
 														? "bg-white shadow-sm text-primary font-semibold ring-1 ring-slate-100"
 														: "text-slate-500 hover:bg-white/60 hover:text-primary"
 												}
@@ -88,7 +96,7 @@ export default function MainSidebar() {
 					>
 						<item.icon
 							className={`w-5 h-5 shrink-0 transition-colors ${
-								item.path === pathname
+								isActive(item.path)
 									? "text-secondary"
 									: "text-slate-400 group-hover:text-slate-600"
 							}`}

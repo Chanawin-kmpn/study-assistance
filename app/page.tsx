@@ -10,7 +10,7 @@ import CTASection from "@/components/sections/CTASection";
 import FAQSection from "@/components/sections/FAQSection";
 import Footer from "@/components/sections/Footer";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
-import TestimonialsSection from "@/components/sections/TestimonialsSection";
+// import TestimonialsSection from "@/components/sections/TestimonialsSection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -77,9 +77,9 @@ export default function HomePage() {
 				<HowItWorksSection scrollerId={scroller} />
 			</div>
 
-			<div className="page-section">
+			{/* <div className="page-section">
 				<TestimonialsSection scrollerId={scroller} />
-			</div>
+			</div> */}
 
 			<div className="page-section">
 				<CTASection scrollerId={scroller} />
