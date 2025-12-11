@@ -15,14 +15,11 @@ export default clerkMiddleware((auth, req) => {
 	if (isProtectedRoute(req)) {
 		const userId = auth();
 
-		// ถ้ายังไม่ได้ Login
 		if (!userId) {
-			// 1. ถ้าเป็น API Route -> ห้าม Redirect! ให้ตอบ JSON 401
 			if (isApiRoute(req)) {
 				return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 			}
 
-			// 2. ถ้าเป็นหน้าเว็บปกติ -> ให้ Redirect ไปหน้า Login
 			auth.protect();
 		}
 	}
