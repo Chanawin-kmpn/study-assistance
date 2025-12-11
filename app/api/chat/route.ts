@@ -49,11 +49,20 @@ export async function POST(req: Request) {
 		const vectorStore = await getVectorStore();
 		const queryEmbedding = await embeddings.embedQuery(question);
 
+		const queryFilter = documentId
+			? {
+					documentId: { $eq: documentId },
+					userId: { $eq: userId },
+			  }
+			: {
+					userId: { $eq: userId },
+			  };
+
 		const queryResponse = await vectorStore.query({
 			vector: queryEmbedding,
 			topK: 3,
 			includeMetadata: true,
-			filter: documentId ? { documentId } : undefined,
+			filter: queryFilter,
 		});
 
 		const context =

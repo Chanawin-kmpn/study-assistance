@@ -29,7 +29,7 @@ export async function DELETE(
 			return new NextResponse("Not found", { status: 404 });
 		}
 
-		await deleteVectorsByDocumentId(document.id, userId);
+		await deleteVectorsByDocumentId(document.id);
 
 		if (document.url) {
 			try {

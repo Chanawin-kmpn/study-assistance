@@ -1,14 +1,28 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
-	// "/chat(.*)",
-	// "/quiz(.*)",
+	"/chat(.*)",
 	"/api/chat(.*)",
-	"/api/quiz(.*)",
+	"/api/documents(.*)",
+	"/api/upload(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-	if (isProtectedRoute(req)) await auth.protect();
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
+
+export default clerkMiddleware((auth, req) => {
+	// เช็คว่าเป็น Route ที่ต้องป้องกันหรือไม่
+	if (isProtectedRoute(req)) {
+		const userId = auth();
+
+		if (!userId) {
+			if (isApiRoute(req)) {
+				return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+			}
+
+			auth.protect();
+		}
+	}
 });
 
 export const config = {
