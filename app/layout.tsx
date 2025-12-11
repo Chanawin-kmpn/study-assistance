@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import MainSidebar from "@/components/MainSidebar";
 import { Toaster } from "sonner";
 import QueryProvider from "@/components/providers/QueryProvider";
+import CookieBanner from "@/components/CookieBanner";
 
 const prompt = Prompt({
 	weight: ["400", "500", "600", "700"],
@@ -65,6 +66,7 @@ export default function RootLayout({
 					>
 						<QueryProvider>{children}</QueryProvider>
 					</main>
+					<CookieBanner />
 				</body>
 			</html>
 		</ClerkProvider>

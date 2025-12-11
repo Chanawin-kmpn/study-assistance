@@ -1,5 +1,6 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { auth } from "@clerk/nextjs/server";
 
 type Metadata = {
 	text: string;
@@ -25,18 +26,20 @@ export async function getVectorStore() {
 
 export { embeddings };
 
-export async function deleteVectorsByDocumentId(
-	documentId: string,
-	userId?: string
-) {
+export async function deleteVectorsByDocumentId(documentId: string) {
 	try {
+		const { userId } = await auth();
+		if (!userId) {
+			console.error("Unauthorized attempt to delete vectors");
+			return;
+		}
+
 		const index = await getVectorStore();
 
-		await index.deleteMany(
-			userId
-				? { documentId: { $eq: documentId }, userId: { $eq: userId } }
-				: { documentId: { $eq: documentId } }
-		);
+		await index.deleteMany({
+			documentId: { $eq: documentId },
+			userId: { $eq: userId },
+		});
 	} catch (error) {
 		return console.error("Error to delete document in Pinecone", error);
 	}
