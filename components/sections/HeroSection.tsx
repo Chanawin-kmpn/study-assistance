@@ -95,7 +95,7 @@ export default function HeroSection() {
 							</p>
 
 							<div className="flex flex-wrap gap-4">
-								<Link href="/quiz/create">
+								<Link href="/chat">
 									<Button
 										size="lg"
 										className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-white rounded-[0.625rem] font-prompt shadow-lg hover:shadow-xl transition-all"

@@ -46,7 +46,7 @@ export default function CTASection({ scrollerId }: SectionProps) {
 						boost your learning efficiency.
 					</p>
 					<div className="flex flex-wrap gap-4 justify-center">
-						<Link href="/quiz">
+						<Link href="/chat">
 							<Button
 								size="lg"
 								className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-white rounded-[0.625rem] font-prompt shadow-lg hover:shadow-xl transition-all"
