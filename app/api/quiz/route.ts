@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/helper/getCurrentUser";
 import { getContextForQuiz } from "@/lib/vector-store";
+import { checkContentSafety } from "@/lib/safety";
 
 const quizSchema = z.object({
 	questions: z.array(
@@ -113,6 +114,14 @@ export async function POST(req: Request) {
 
 			finalContext = vectorContent;
 		} else if (sourceType === "TEXT" && rawText) {
+			const safetyCheck = await checkContentSafety(rawText);
+
+			if (!safetyCheck.isSafe) {
+				return new NextResponse(
+					`Cannot create quiz: Content contains inappropriate material (${safetyCheck.reason}).`,
+					{ status: 400 } // ส่ง 400 Bad Request กลับไป
+				);
+			}
 			finalContext = rawText;
 		}
 		if (!finalContext || finalContext.trim().length === 0) {

@@ -8,6 +8,8 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "../prisma";
 // import { put } from "@vercel/blob"; // 👈 ลบออก: ไม่ต้องอัปโหลดแล้ว
 import "pdf-parse/worker";
+import { checkContentSafety } from "@/lib/safety";
+import { del } from "@vercel/blob";
 
 export async function processDocumentFromUrl(
 	fileUrl: string, // 👈 รับ URL ของไฟล์ที่อัปโหลดเสร็จแล้ว
@@ -48,6 +50,32 @@ export async function processDocumentFromUrl(
 		await parser.destroy();
 
 		const text = result.text;
+		if (!text || text.trim().length === 0) {
+			return {
+				success: false,
+				message: "Unable to read text from PDF or file is empty.",
+			};
+		}
+
+		const safetyCheck = await checkContentSafety(text);
+		if (!safetyCheck.isSafe) {
+			// 🗑️ เนื้อหาไม่ผ่าน! ลบไฟล์ออกจาก Blob ทันที
+			console.warn(
+				`[Moderation] Blocking file "${fileName}" due to: ${safetyCheck.reason}`
+			);
+
+			try {
+				await del(fileUrl);
+			} catch (delError) {
+				console.error("Failed to delete unsafe blob:", delError);
+			}
+
+			return {
+				success: false,
+				message: `Upload rejected: Content contains inappropriate material (${safetyCheck.reason}).`,
+			};
+		}
+
 		const pageCount = result.total;
 
 		const document = await prisma.document.create({
