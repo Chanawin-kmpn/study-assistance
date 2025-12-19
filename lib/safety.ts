@@ -50,6 +50,6 @@ export async function checkContentSafety(
 		return result.object;
 	} catch (error) {
 		console.error("Gemini Safety Check Error:", error);
-		return { isSafe: true };
+		return { isSafe: false, reason: "Safety check unavailable" };
 	}
 }
