@@ -20,12 +20,16 @@ export async function checkContentSafety(
 	text: string
 ): Promise<{ isSafe: boolean; reason?: string }> {
 	try {
+		if (!text || typeof text !== "string" || text.trim().length === 0) {
+			return { isSafe: false, reason: "Empty or invalid input" };
+		}
 		// ตัด Text ยาวๆ ออกบ้างเพื่อความเร็ว (Gemini รับได้เยอะมาก แต่ส่งไปเยอะก็รอนาน)
 		const sampleText = text.slice(0, 5000);
 
 		const result = await generateObject({
-			model: google("gemini-flash-latest"), // ใช้ Flash รุ่นใหม่ เร็วและฉลาดพอ
+			model: google("gemini-flash-latest"),
 			schema: safetySchema,
+			abortSignal: AbortSignal.timeout(10000),
 			prompt: `
         You are a strict AI Content Moderator for an education platform in Thailand.
         
