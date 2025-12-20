@@ -23,6 +23,7 @@ import {
 	Loader2,
 	Upload,
 	FileText,
+	Globe,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ export const CreateQuizForm = ({
 		title: "",
 		description: "",
 		difficulty: "MEDIUM",
+		language: "EN",
 		questionCount: 10,
 		specificRequirement: "",
 		sourceUrl: "",
@@ -149,6 +151,7 @@ export const CreateQuizForm = ({
 				title: formData.title,
 				description: formData.description,
 				difficulty: formData.difficulty,
+				language: formData.language,
 				questionAmount: formData.questionCount,
 				specificRequirement: formData.specificRequirement,
 				sourceType: sourceType,
@@ -391,6 +394,27 @@ export const CreateQuizForm = ({
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
+							<Label>Language</Label>
+							<Select
+								defaultValue={formData.language}
+								onValueChange={(val) =>
+									setFormData({ ...formData, language: val })
+								}
+								disabled={isLoading}
+							>
+								<SelectTrigger>
+									<div className="flex items-center gap-2">
+										<Globe className="w-4 h-4 text-slate-500" />
+										<SelectValue placeholder="Select Language" />
+									</div>
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="TH">Thai (ภาษาไทย)</SelectItem>
+									<SelectItem value="EN">English</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className="space-y-2">
 							<Label>Difficulty</Label>
 							<Select
 								defaultValue={formData.difficulty}
@@ -409,22 +433,22 @@ export const CreateQuizForm = ({
 								</SelectContent>
 							</Select>
 						</div>
-						<div className="space-y-2">
-							<Label>Questions</Label>
-							<Input
-								type="number"
-								min={1}
-								max={20}
-								value={formData.questionCount}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										questionCount: parseInt(e.target.value),
-									})
-								}
-								disabled={isLoading}
-							/>
-						</div>
+					</div>
+					<div className="space-y-2">
+						<Label>Questions</Label>
+						<Input
+							type="number"
+							min={1}
+							max={20}
+							value={formData.questionCount}
+							onChange={(e) =>
+								setFormData({
+									...formData,
+									questionCount: parseInt(e.target.value),
+								})
+							}
+							disabled={isLoading}
+						/>
 					</div>
 
 					<div className="space-y-2">

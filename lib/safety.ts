@@ -27,7 +27,7 @@ export async function checkContentSafety(
 		const sampleText = text.slice(0, 5000);
 
 		const result = await generateObject({
-			model: google("gemini-flash-latest"),
+			model: google("gemini-2.0-flash"),
 			schema: safetySchema,
 			abortSignal: AbortSignal.timeout(10000),
 			prompt: `
