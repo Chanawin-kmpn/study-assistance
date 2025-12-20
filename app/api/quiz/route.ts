@@ -31,6 +31,7 @@ const requestSchema = z.object({
 	description: z.string().optional(),
 
 	difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+	language: z.enum(["TH", "EN"]).default("EN"),
 	questionAmount: z.number().int().min(1).max(20),
 
 	sourceType: z.enum(["PDF", "LINK", "TEXT"]),
@@ -60,11 +61,9 @@ export async function GET() {
 			},
 		});
 
-		// ✅ ต้องมี return ข้อมูลกลับไปเสมอ
 		return NextResponse.json(quizzes);
 	} catch (error) {
 		console.error("[QUIZ_GET]", error);
-		// ❌ ต้องมี return ใน catch ด้วย
 		return new NextResponse("Internal Error", { status: 500 });
 	}
 }
@@ -83,6 +82,7 @@ export async function POST(req: Request) {
 			title,
 			description,
 			difficulty,
+			language,
 			questionAmount,
 			sourceType,
 			documentId,
@@ -130,17 +130,30 @@ export async function POST(req: Request) {
 			});
 		}
 		const model = google("gemini-3-flash-preview");
+		const languageInstruction =
+			language === "TH"
+				? "Thai language. Ensure all questions, choices, and explanations are written in natural, academic Thai."
+				: "English language.";
 
 		const systemPrompt = `
-คุณเป็นผู้ช่วยติวหนังสือสำหรับนักเรียนภาษาไทย
-สร้างข้อสอบปรนัย ${questionAmount} ข้อ จากเนื้อหา Context ที่ให้
-- ภาษา: ไทยทั้งหมด (คำถามและตัวเลือก)
-- รูปแบบ: Multiple choice 1 คำตอบที่ถูกต่อข้อ
-- ระดับความยาก: ${difficulty}
-- หัวข้อ: ${title}
-- ข้อกำหนดเพิ่มเติม: ${specificRequirement || "ไม่มี เน้นใจความสำคัญ"}
+You are an expert AI tutor and assessment creator specializing in educational content.
+Your task is to generate a multiple-choice quiz consisting of ${questionAmount} questions based strictly on the provided Context.
 
-Output Format: JSON only based on the schema.
+Configuration:
+- Target Language: ${languageInstruction}
+- Difficulty Level: ${difficulty}
+- Topic/Title: ${title}
+- Specific Requirements: ${
+			specificRequirement ||
+			"Focus on key concepts, main ideas, and important details."
+		}
+
+Format Requirements:
+1. Question Structure: Multiple choice with 4 distinct options.
+2. Answer Logic: Exactly one correct option per question.
+3. Explanation: Provide a clear and helpful explanation for why the correct answer is right.
+4. Output Format: Return strictly a JSON object matching the defined schema. No markdown, no conversational text.
+
 Context:
 ${finalContext}
     `.trim();
