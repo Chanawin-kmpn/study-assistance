@@ -129,7 +129,7 @@ export async function POST(req: Request) {
 				status: 400,
 			});
 		}
-		const model = google("gemini-flash-latest");
+		const model = google("gemini-3-flash-preview");
 
 		const systemPrompt = `
 คุณเป็นผู้ช่วยติวหนังสือสำหรับนักเรียนภาษาไทย

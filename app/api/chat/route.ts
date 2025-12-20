@@ -110,7 +110,7 @@ Instructions:
 `.trim();
 		}
 
-		const model = google("gemini-flash-latest");
+		const model = google("gemini-3-flash-preview");
 
 		const result = streamText({
 			model,
