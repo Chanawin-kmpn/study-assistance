@@ -5,6 +5,7 @@ import { ChatMode } from "@/types/types.global";
 import { google } from "@ai-sdk/google";
 import { auth } from "@clerk/nextjs/server";
 import { streamText, type UIMessage, convertToModelMessages } from "ai";
+import { NextResponse } from "next/server";
 
 export const maxDuration = 30;
 
@@ -166,37 +167,6 @@ Instructions:
 	} catch (error) {
 		console.error("Error streaming text:", error);
 
-		if (error instanceof Error) {
-			return new Response(
-				JSON.stringify(
-					{
-						message: error.message,
-						stack: error.stack,
-						name: error.name,
-					},
-					null,
-					2
-				),
-				{
-					status: 500,
-					headers: { "Content-Type": "application/json" },
-				}
-			);
-		}
-
-		return new Response(
-			JSON.stringify(
-				{
-					message: "Unknown error",
-					error,
-				},
-				null,
-				2
-			),
-			{
-				status: 500,
-				headers: { "Content-Type": "application/json" },
-			}
-		);
+		return NextResponse.json((error as Error).message, { status: 500 });
 	}
 }

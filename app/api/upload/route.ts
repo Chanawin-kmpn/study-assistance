@@ -5,7 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 export async function POST(req: Request): Promise<NextResponse> {
 	const body = (await req.json()) as HandleUploadBody;
 	try {
-		const jsonResponse = await handleUpload({
+		const response = await handleUpload({
 			body,
 			request: req,
 			onBeforeGenerateToken: async () => {
@@ -27,7 +27,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 			},
 		});
 
-		return NextResponse.json(jsonResponse);
+		return NextResponse.json(response);
 	} catch (error) {
 		console.error("Blob Upload Handler Error:", error);
 		return NextResponse.json(
