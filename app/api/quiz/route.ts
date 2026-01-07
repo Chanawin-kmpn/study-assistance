@@ -126,7 +126,7 @@ export async function POST(req: Request) {
 			finalContext = rawText;
 		}
 		if (!finalContext || finalContext.trim().length === 0) {
-			return new NextResponse("Context content is missing or empty", {
+			return new NextResponse("Context content is missing or empty.", {
 				status: 400,
 			});
 		}
