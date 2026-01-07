@@ -47,6 +47,7 @@ export async function deleteVectorsByDocumentId(documentId: string) {
 
 export async function getContextForQuiz(
 	documentId: string,
+	questionAmount: number,
 	requirement?: string
 ) {
 	try {
@@ -55,10 +56,11 @@ export async function getContextForQuiz(
 			requirement || "Summarize key concepts, definitions, and important facts";
 
 		const queryVector = await embeddings.embedQuery(queryText);
+		const dynamicTopK = Math.min(10, Math.ceil(questionAmount * 1.5));
 
 		const queryResponse = await index.query({
 			vector: queryVector,
-			topK: 10,
+			topK: dynamicTopK,
 			includeMetadata: true,
 			filter: {
 				documentId: { $eq: documentId },

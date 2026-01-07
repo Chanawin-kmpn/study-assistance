@@ -103,6 +103,7 @@ export async function POST(req: Request) {
 
 			const vectorContent = await getContextForQuiz(
 				documentId,
+				questionAmount,
 				specificRequirement
 			);
 
